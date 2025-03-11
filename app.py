@@ -63,7 +63,7 @@ def control_get():
 
     steps = load_blueprint(blueprint)
     image_top, image_front, image_right = render_control_views(steps)
-    return render_template('control.html', image_top=image_top, image_front=image_front, image_right=image_right, step=len(steps)+1, blueprint=blueprint)
+    return render_template('control.html', image_top=image_top, image_front=image_front, image_right=image_right, step=len(steps)+1, max_steps=len(steps), blueprint=blueprint)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
