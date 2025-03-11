@@ -1,0 +1,17 @@
+{% extends "base.html" %} {% block title %} Blueprint {% endblock %} {% block
+content %}
+<h1>Blueprint Page</h1>
+<img src="data:image/png;base64,{{ img_top }}" class="img-fluid" />
+<img src="data:image/png;base64,{{ img_right }}" class="img-fluid" />
+<img src="data:image/png;base64,{{ img_left }}" class="img-fluid" />
+<p>Step: {{ step }} of {{ max_steps }} in Blueprint {{ blueprint }}</p>
+<div class="d-flex justify-content-center">
+    <form method="post" action="{{ url_for('log_off') }}" class="mx-2">
+        <button type="submit" class="btn btn-danger mt-3">Log Out</button>
+    </form>
+    <form method="post" action="{{ url_for('control_post') }}" class="mx-2">
+        <button type="submit" class="btn btn-primary mt-3">Finish</button>
+    </form>
+</div>
+
+{% endblock %}

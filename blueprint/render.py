@@ -52,3 +52,12 @@ def render_blueprint(steps: List[Tuple]) -> str:
     fig, ax = setup_axes()
     render_step(ax, 1, steps)
     return convert_to_base64(fig)
+
+def render_control_views(steps: List[Tuple]) -> Tuple[str, str, str]:
+    top_view = render_blueprint(steps)
+
+    # TODO: Implement front and left views
+    front_view = top_view
+    left_view = top_view
+
+    return top_view, front_view, left_view
