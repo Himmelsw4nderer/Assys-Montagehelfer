@@ -2,9 +2,10 @@
 content %}
 <h1>Blueprint Page</h1>
 <img src="data:image/png;base64,{{ img }}" class="img-fluid" />
-<p>Step: {{ step }}</p>
-<form method="post" action="{{ url_for('blueprint') }}">
+<p>Step: {{ step }} of {{ max_steps }} in Blueprint {{ blueprint }}</p>
+<form method="post" action="{{ url_for('blueprint_post') }}">
     <input type="hidden" name="step" value="{{ step }}" />
+    <input type="hidden" name="blueprint" value="{{ blueprint }}" />
     <button type="submit" class="btn btn-primary mt-3">Next Step</button>
 </form>
 {% endblock %}
