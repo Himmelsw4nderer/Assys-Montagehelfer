@@ -1,7 +1,12 @@
 {% extends "base.html" %} {% block title %} Blueprint {% endblock %} {% block
 content %}
-<h1>Blueprint</h1>
-<image src="data:image/png;base64,{{ image }}" class="image-fluid" />
+<h1>Add the highlighted Brick</h1>
+<div class="d-flex justify-content-between">
+    <div class="text-center">
+        <h5>Top View</h5>
+        <image src="data:image/png;base64,{{ image }}" class="image-fluid" />
+    </div>
+</div>
 <p>Step: {{ step }} of {{ max_steps }} in Blueprint {{ blueprint }}</p>
 <form method="post" action="{{ url_for('blueprint_post') }}">
     <input type="hidden" name="step" value="{{ step }}" />
