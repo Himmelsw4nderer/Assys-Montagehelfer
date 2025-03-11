@@ -1,8 +1,8 @@
 {% extends "base.html" %} {% block title %} Home {% endblock %} {% block content
 %}
 <div class="container mt-5">
-    <h1>Welcome to the Home Page</h1>
-    <form method="post">
+    <h1>Asys-Montage</h1>
+    <form method="post" , action="{{ url_for('log_in') }}">
         <button type="submit" class="btn btn-primary mt-3">Log In</button>
     </form>
 </div>

@@ -5,7 +5,7 @@ from blueprint.loader import select_random_blueprint, load_blueprint
 app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
-def index_get():
+def index():
     return render_template('index.html')
 
 @app.route('/log_in', methods=['POST'])
@@ -25,8 +25,7 @@ def blueprint_post():
 
     if request.form.get('direction') == 'back':
         return redirect(url_for('blueprint_get', step=max(1, step-1), blueprint=blueprint))
-    else:
-        return redirect(url_for('blueprint_get', step=step+1, blueprint=blueprint))
+    return redirect(url_for('blueprint_get', step=step+1, blueprint=blueprint))
 
 @app.route('/blueprint', methods=['GET'])
 def blueprint_get():
@@ -42,11 +41,18 @@ def blueprint_get():
     if step > max_steps:
         return redirect(url_for('control_get', blueprint=blueprint))
 
-    img = render_blueprint(steps[:step])
-    return render_template('blueprint.html', img=img, step=step, max_steps=max_steps, blueprint=blueprint)
+    image = render_blueprint(steps[:step])
+    return render_template('blueprint.html', image=image, step=step, max_steps=max_steps, blueprint=blueprint)
 
 @app.route('/control', methods=['POST'])
 def control_post():
+    if 'step' not in request.form or 'blueprint' not in request.form:
+        return redirect(url_for('index'))
+    step = int(request.form['step'])
+    blueprint = request.form['blueprint']
+
+    if request.form.get('direction') == 'back':
+        return redirect(url_for('blueprint_get', step=max(1, step-1), blueprint=blueprint))
     return redirect(url_for('blueprint_get', step=1, blueprint=select_random_blueprint()))
 
 @app.route('/control', methods=['GET'])
@@ -56,8 +62,8 @@ def control_get():
     blueprint = request.args['blueprint']
 
     steps = load_blueprint(blueprint)
-    img_top, img_front, img_side = render_control_views(steps)
-    return render_template('control.html', img_top=img_top, img_front=img_front, img_side=img_side, blueprint=blueprint)
+    image_top, image_front, image_right = render_control_views(steps)
+    return render_template('control.html', image_top=image_top, image_front=image_front, image_right=image_right, step=len(steps)+1, blueprint=blueprint)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block title %} Blueprint {% endblock %} {% block
 content %}
-<h1>Blueprint Page</h1>
-<img src="data:image/png;base64,{{ img }}" class="img-fluid" />
+<h1>Blueprint</h1>
+<image src="data:image/png;base64,{{ image }}" class="image-fluid" />
 <p>Step: {{ step }} of {{ max_steps }} in Blueprint {{ blueprint }}</p>
 <form method="post" action="{{ url_for('blueprint_post') }}">
     <input type="hidden" name="step" value="{{ step }}" />

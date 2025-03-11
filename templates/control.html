@@ -1,17 +1,51 @@
 {% extends "base.html" %} {% block title %} Blueprint {% endblock %} {% block
 content %}
-<h1>Blueprint Page</h1>
-<img src="data:image/png;base64,{{ img_top }}" class="img-fluid" />
-<img src="data:image/png;base64,{{ img_right }}" class="img-fluid" />
-<img src="data:image/png;base64,{{ img_left }}" class="img-fluid" />
-<p>Step: {{ step }} of {{ max_steps }} in Blueprint {{ blueprint }}</p>
-<div class="d-flex justify-content-center">
-    <form method="post" action="{{ url_for('log_off') }}" class="mx-2">
-        <button type="submit" class="btn btn-danger mt-3">Log Out</button>
-    </form>
-    <form method="post" action="{{ url_for('control_post') }}" class="mx-2">
-        <button type="submit" class="btn btn-primary mt-3">Finish</button>
-    </form>
+<h1>Control</h1>
+<div class="d-flex justify-content-between">
+    <div class="text-center">
+        <h5>Top View</h5>
+        <image
+            src="data:image/png;base64,{{ image_top }}"
+            class="image-fluid"
+        />
+    </div>
+    <div class="text-center">
+        <h5>Front View</h5>
+        <image
+            src="data:image/png;base64,{{ image_front }}"
+            class="image-fluid"
+        />
+    </div>
+    <div class="text-center">
+        <h5>Right View</h5>
+        <image
+            src="data:image/png;base64,{{ image_right }}"
+            class="image-fluid"
+        />
+    </div>
 </div>
+<p>Blueprint {{ blueprint }} with {{ max_steps }} Steps</p>
+<form method="post" action="{{ url_for('control_post') }}">
+    <input type="hidden" name="step" value="{{ step }}" />
+    <input type="hidden" name="blueprint" value="{{ blueprint }}" />
+    <div class="d-flex justify-content-between mt-3">
+        <button
+            type="submit"
+            name="direction"
+            value="back"
+            class="btn btn-secondary"
+        >
+            Back
+        </button>
+        <button
+            type="submit"
+            name="direction"
+            value="finish"
+            class="btn btn-success"
+        >
+            Finish
+        </button>
+    </div>
+</form>
 
 {% endblock %}

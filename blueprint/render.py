@@ -44,9 +44,9 @@ def convert_to_base64(fig: Any) -> str:
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight')
     buf.seek(0)
-    img = base64.b64encode(buf.getvalue()).decode('utf-8')
+    image = base64.b64encode(buf.getvalue()).decode('utf-8')
     plt.close(fig)
-    return img
+    return image
 
 def render_blueprint(steps: List[Tuple]) -> str:
     fig, ax = setup_axes()
@@ -56,8 +56,8 @@ def render_blueprint(steps: List[Tuple]) -> str:
 def render_control_views(steps: List[Tuple]) -> Tuple[str, str, str]:
     top_view = render_blueprint(steps)
 
-    # TODO: Implement front and left views
+    # TODO: Implement front and right views
     front_view = top_view
-    left_view = top_view
+    right_view = top_view
 
-    return top_view, front_view, left_view
+    return top_view, front_view, right_view
