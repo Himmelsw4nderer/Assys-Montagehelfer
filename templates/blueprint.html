@@ -1,0 +1,10 @@
+{% extends "base.html" %} {% block title %} Blueprint {% endblock %} {% block
+content %}
+<h1>Blueprint Page</h1>
+<img src="data:image/png;base64,{{ img }}" class="img-fluid" />
+<p>Step: {{ step }}</p>
+<form method="post" action="{{ url_for('blueprint') }}">
+    <input type="hidden" name="step" value="{{ step }}" />
+    <button type="submit" class="btn btn-primary mt-3">Next Step</button>
+</form>
+{% endblock %}
