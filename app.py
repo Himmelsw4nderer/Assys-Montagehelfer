@@ -9,7 +9,7 @@ def index():
         return redirect(url_for('blueprint', step=1))
     return render_template('index.html')
 
-steps = [(1, 1, 2, 1, 'red'), (4, 1, 2, 1, 'blue'), (1, 3, 2, 1, 'green'), (4, 3, 2, 1, 'yellow')]
+steps = [(1, 1, 4, 2, 'red'), (5, 1, 2, 4, 'blue'), (1, 3, 4, 2, 'green'), (3, 2, 4, 2, 'yellow')]
 
 @app.route('/blueprint', methods=['GET', 'POST'])
 def blueprint():
