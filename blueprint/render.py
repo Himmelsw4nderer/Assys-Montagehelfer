@@ -83,30 +83,37 @@ def blueprint_to_cube(steps: List[Tuple]) -> np.ndarray:
     layers.append(create_new_layer(old_layer=layer))
     return np.array(layers)
 
+def draw_stud_on_layer(ax: Any, x: float, y: float, color: str, alpha: float) -> None:
+    x_offset = x + ((STUD_SPACING - (STUD_RADIUS*2)) / 2)
+    draw_rectangle(ax, x_offset, y, STUD_RADIUS*2, STUD_HEIGHT, color, alpha=alpha)
+
+def process_cell(ax: Any, cell: Any, i: int, j: int, k: int, cube_representation: np.ndarray) -> None:
+    if cell is not None and not cell == "stud":
+        draw_rectangle(ax, k, j*BRICK_HEIGHT, STUD_SPACING, BRICK_HEIGHT, cell)
+    elif cell == "stud":
+        color = "gray" if i <= 0 else cube_representation[i][j-1][k]
+        if color is None or color == "stud":
+            return
+        alpha = 0.1 if i <= 0 else 1.0
+        draw_stud_on_layer(ax, k, j*BRICK_HEIGHT, color, alpha)
+
 def render_cube_view(cube_representation: np.ndarray) -> str:
     fig, ax = setup_axes()
     for i, layer in enumerate(cube_representation):
         for j in range(layer.shape[0]):
             for k in range(layer.shape[1]):
-                if layer[j,k] is not None and not layer[j,k] == "stud":
-                    draw_rectangle(ax, k, j*BRICK_HEIGHT, STUD_SPACING, BRICK_HEIGHT, layer[j,k], line_width=0.0)
-                elif layer[j,k] == "stud":
-                    color = "gray" if i <= 0 else cube_representation[i][j-1][k]
-                    if color is None or color == "stud":
-                        continue
-                    x = k + ((STUD_SPACING - (STUD_RADIUS*2)) / 2)
-                    y = j*BRICK_HEIGHT
-                    alpha = 0.1 if i <= 0 else 1.0
-                    draw_rectangle(ax, x, y, STUD_RADIUS*2, STUD_HEIGHT, color, alpha=alpha, line_width=0.0)
+                process_cell(ax, layer[j,k], i, j, k, cube_representation)
     return convert_to_base64(fig)
 
-def render_control_views(steps: List[Tuple]) -> Tuple[str, str, str]:
-    top_view = render_blueprint(steps)
-
+def render_control_views(steps: List[Tuple]) -> Tuple[str, str, str, str]:
     cube_representation = blueprint_to_cube(steps)
-    cube_representation_flipped_front = np.transpose(cube_representation, axes=(1, 0, 2))
+    cube_representation_flipped_back = np.transpose(cube_representation, axes=(1, 0, 2))
+    back_view = render_cube_view(cube_representation_flipped_back)
+    cube_representation_flipped_front = np.flip(np.flip(cube_representation_flipped_back, axis=0), axis=2)
     front_view = render_cube_view(cube_representation_flipped_front)
     cube_representation_flipped_right = np.transpose(cube_representation, axes=(2, 0, 1))
     right_view = render_cube_view(cube_representation_flipped_right)
+    cube_representation_flipped_left = np.flip(np.flip(cube_representation_flipped_right, axis=0), axis=2)
+    left_view = render_cube_view(cube_representation_flipped_left)
 
-    return top_view, front_view, right_view
+    return front_view, back_view, right_view, left_view

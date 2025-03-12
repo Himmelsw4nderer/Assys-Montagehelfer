@@ -1,27 +1,38 @@
 {% extends "base.html" %} {% block title %} Blueprint {% endblock %} {% block
 content %}
 <h1>Please Control the object from all Sides</h1>
-<div class="d-flex justify-content-between">
-    <div class="text-center">
-        <h5>Top View</h5>
-        <image
-            src="data:image/png;base64,{{ image_top }}"
-            class="image-fluid"
-        />
+<div class="d-flex flex-column">
+    <div class="d-flex justify-content-center mb-3">
+        <div class="text-center me-3">
+            <h5>Front View</h5>
+            <image
+                src="data:image/png;base64,{{ image_front }}"
+                class="image-fluid"
+            />
+        </div>
+        <div class="text-center">
+            <h5>Back View</h5>
+            <image
+                src="data:image/png;base64,{{ image_back }}"
+                class="image-fluid"
+            />
+        </div>
     </div>
-    <div class="text-center">
-        <h5>Front View</h5>
-        <image
-            src="data:image/png;base64,{{ image_front }}"
-            class="image-fluid"
-        />
-    </div>
-    <div class="text-center">
-        <h5>Right View</h5>
-        <image
-            src="data:image/png;base64,{{ image_right }}"
-            class="image-fluid"
-        />
+    <div class="d-flex justify-content-center">
+        <div class="text-center me-3">
+            <h5>Left View</h5>
+            <image
+                src="data:image/png;base64,{{ image_left }}"
+                class="image-fluid"
+            />
+        </div>
+        <div class="text-center">
+            <h5>Right View</h5>
+            <image
+                src="data:image/png;base64,{{ image_right }}"
+                class="image-fluid"
+            />
+        </div>
     </div>
 </div>
 <p>Blueprint {{ blueprint }} with {{ max_steps }} Steps</p>
