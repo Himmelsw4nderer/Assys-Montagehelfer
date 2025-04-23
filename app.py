@@ -1,6 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for
 from blueprint.render import render_blueprint, render_control_views
 from blueprint.loader import select_random_blueprint, load_blueprint
+from pick_by_light.pick_by_light_controller import PickByLightController
+from queue import Queue
+
+message_queue = Queue()
 
 app = Flask(__name__)
 
@@ -66,4 +70,12 @@ def control_get():
     return render_template('control.html', image_front=image_front, image_right=image_right, image_back=image_back, image_left=image_left , step=len(steps)+1, max_steps=len(steps), blueprint=blueprint)
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    artnet_controller = PickByLightController(message_queue)
+    artnet_controller.daemon = True
+    artnet_controller.start()
+
+    try:
+        app.run(debug=True, host='0.0.0.0', port=5000)
+    finally:
+        artnet_controller.stop()
+        artnet_controller.join()
