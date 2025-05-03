@@ -1,0 +1,34 @@
+{% extends "base.html" %} {% block title %} Home {% endblock %} {% block content
+%}
+<div class="container mt-5">
+    <h1>Storage Management</h1>
+    <form method="post">
+        <div class="mb-3">
+            <label for="color" class="form-label">Color</label>
+            <select class="form-select" id="color" name="color">
+                <option value="not_reg">Not Regular</option>
+                <option value="green">Green</option>
+                <option value="blue">Blue</option>
+                <option value="yellow">Yellow</option>
+                <option value="red">Red</option>
+
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="length" class="form-label">Length</label>
+            <input type="number" class="form-control" id="length" name="length" step="1">
+        </div>
+        <div class="mb-3">
+            <label for="width" class="form-label">Width</label>
+            <input type="number" class="form-control" id="width" name="width" step="1">
+        </div
+        <div class="mb-3">
+            <label for="location" class="form-label">Position</label>
+            <input type="number" class="form-control" id="location" name="location" step="1">
+        </div>
+        <div class="mb-4"></div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+</div>
+{% endblock %}

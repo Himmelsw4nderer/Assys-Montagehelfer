@@ -27,14 +27,14 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <form method="post" action="{{ url_for('log_off') }}">
+                        <form method="post" action="{{ url_for('blueprint.log_off') }}">
                             <button type="submit" class="btn btn-danger">
                                 Log Out
                             </button>
                         </form>
                     </li>
                     <li class="nav-item ml-2">
-                        <form method="post" action="{{ url_for('log_in') }}">
+                        <form method="post" action="{{ url_for('blueprint.log_in') }}">
                             <button type="submit" class="btn btn-primary">
                                 Log In
                             </button>

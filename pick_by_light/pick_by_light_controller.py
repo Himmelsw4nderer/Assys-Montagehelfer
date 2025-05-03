@@ -2,7 +2,7 @@ from rpi_ws281x import PixelStrip, Color
 from typing import Dict, Optional, Any, Tuple
 from color_helper import get_color_by_name
 
-class LightController:
+class PickByLightController:
     def __init__(self, led_pin: int = 12, num_pixels: int = 26) -> None:
         """Initialize the light controller with the GPIO pin for the LED strip."""
         self.led_pin = led_pin
@@ -87,7 +87,7 @@ class LightController:
 
 
 if __name__ == "__main__":
-    light_controller = LightController(led_pin=12, num_pixels=30)
+    light_controller = PickByLightController(led_pin=12, num_pixels=30)
 
     light_controller.add_block_to_location(1, width=4.0, length=2.0, color="red", count=2)
     light_controller.add_block_to_location(5, width=4.0, length=2.0, color="blue", count=1)

@@ -36,7 +36,7 @@ content %}
     </div>
 </div>
 <p>Blueprint {{ blueprint }} with {{ max_steps }} Steps</p>
-<form method="post" action="{{ url_for('control_post') }}">
+<form method="post" action="{{ url_for('blueprint.control_post') }}">
     <input type="hidden" name="step" value="{{ step }}" />
     <input type="hidden" name="blueprint" value="{{ blueprint }}" />
     <div class="d-flex justify-content-between mt-3">
