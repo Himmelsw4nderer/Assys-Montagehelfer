@@ -1,13 +1,13 @@
 from rpi_ws281x import PixelStrip, Color
 from typing import Dict, Optional, Any, Tuple
-from color_helper import get_color_by_name
+from pick_by_light.color_helper import get_color_by_name
 
 class PickByLightController:
     def __init__(self, led_pin: int = 12, num_pixels: int = 26) -> None:
         """Initialize the light controller with the GPIO pin for the LED strip."""
         self.led_pin = led_pin
         self.num_pixels = num_pixels
-        self.blocks: Dict[int, Tuple[str, float, float, int]] = {} # location (key), color, width, length, count
+        self.blocks: Dict[int, Tuple[str, float, float, int]] = {} # location (key), color, length, width, count
         self.currently_highlighted: Optional[Any] = None
 
         LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
@@ -22,18 +22,27 @@ class PickByLightController:
 
         self.cleanup()
 
-    def add_block_to_location(self, location: Any, width: float, length: float, color: str, count: int = 1) -> None:
+    def add_block_to_location(self, location: Any, length: float, width: float, color: str, count: int = 1) -> None:
         """Add a block to a specific location with its properties."""
         if location in self.blocks:
             raise ValueError(f"Block already exists at location {location}.")
         if location > self.num_pixels or location < 0:
             raise ValueError(f"Location {location} is out of range.")
-        self.blocks[location] = (color, width, length, count)
 
-    def get_block_location(self, width: float, length: float, color: str) -> Optional[int]:
+        # Make sure length is always longer than width
+        if length > width:
+            length, width = width, length
+
+        self.blocks[location] = (color, length, width, count)
+
+    def get_block_location(self, length: float, width: float, color: str) -> Optional[int]:
         """Get the location of a block with the specified properties."""
-        for location, (block_color, block_width, block_length, count) in self.blocks.items():
-            if block_width == width and block_length == length and block_color == color:
+        # Make sure length is always longer than width
+        if length > width:
+            length, width = width, length
+
+        for location, (block_color, block_length, block_width, count) in self.blocks.items():
+            if block_length == length and block_width == width and block_color == color:
                 return location
         return None
 
@@ -89,9 +98,9 @@ class PickByLightController:
 if __name__ == "__main__":
     light_controller = PickByLightController(led_pin=12, num_pixels=30)
 
-    light_controller.add_block_to_location(1, width=4.0, length=2.0, color="red", count=2)
-    light_controller.add_block_to_location(5, width=4.0, length=2.0, color="blue", count=1)
-    light_controller.add_block_to_location(10, width=4.0, length=2.0, color="green", count=3)
+    light_controller.add_block_to_location(1, length=2.0, width=4.0, color="red", count=2)
+    light_controller.add_block_to_location(5, length=2.0, width=4.0, color="blue", count=1)
+    light_controller.add_block_to_location(10, length=2.0, width=4.0, color="green", count=3)
 
     print("\nTesting block highlighting:")
     light_controller.show_block(1)
