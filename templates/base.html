@@ -27,14 +27,20 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <form method="post" action="{{ url_for('blueprint.log_off') }}">
+                        <form
+                            method="post"
+                            action="{{ url_for('blueprint.log_off') }}"
+                        >
                             <button type="submit" class="btn btn-danger">
                                 Log Out
                             </button>
                         </form>
                     </li>
                     <li class="nav-item ml-2">
-                        <form method="post" action="{{ url_for('blueprint.log_in') }}">
+                        <form
+                            method="post"
+                            action="{{ url_for('blueprint.log_in') }}"
+                        >
                             <button type="submit" class="btn btn-primary">
                                 Log In
                             </button>
@@ -43,6 +49,25 @@
                 </ul>
             </div>
         </nav>
+
+        <div class="container-fluid">
+            {% if warning %}
+            <div
+                class="alert alert-warning alert-dismissible fade show mt-2"
+                role="alert"
+            >
+                <strong>Warning!</strong> {{ warning }}
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="alert"
+                    aria-label="Close"
+                >
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endif %}
+        </div>
 
         <div class="container">
             {% block content %}

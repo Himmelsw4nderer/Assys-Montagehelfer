@@ -46,47 +46,43 @@ class PickByLightController:
                 return location
         return None
 
-    def show_block(self, location: int) -> bool:
+    def show_block(self, location: int) -> None:
         """Highlight the block at the specified location by turning on the LED."""
-        if location in self.blocks:
-            print(f"Highlighting block at location {location}")
+        if location not in self.blocks:
+            raise ValueError(f"No block found at location {location}")
 
-            color_name = self.blocks[location][0]  # Color is the first element in the tuple
-            color = get_color_by_name(color_name)
+        color_name = self.blocks[location][0]  # Color is the first element in the tuple
+        color = get_color_by_name(color_name)
 
-            self.cleanup()
-            self.pixels.setPixelColor(location, color)
-            self.pixels.show()
-            self.currently_highlighted = location
-            return True
-        else:
-            print(f"No block found at location {location}")
-            return False
+        self.cleanup()
+        self.pixels.setPixelColor(location, color)
+        self.pixels.show()
+        self.currently_highlighted = location
 
     def get_currently_highlighted_block(self) -> Optional[int]:
         """Return the location of the currently highlighted block."""
-        if self.currently_highlighted:
-            return self.currently_highlighted
-        else:
-            print("No block is currently highlighted")
-            return None
+        if not self.currently_highlighted:
+            raise ValueError("No block is currently highlighted")
+        return self.currently_highlighted
 
-    def remove_block(self, location: Any, count: int = 1) -> bool:
+    def remove_block(self, location: Any, count: int = 1) -> None:
         """Remove a highlighted block from the specified location."""
-        if location in self.blocks:
-            print(f"Removing block from location {location}")
+        if location not in self.blocks:
+            raise ValueError(f"No block found at location {location}")
+
+        color, length, width, current_count = self.blocks[location]
+
+        if count < 0 or count >= current_count:
             del self.blocks[location]
 
-            # Turn off the LEDs if this was the highlighted location
             if self.currently_highlighted == location:
                 for i in range(self.num_pixels):
                     self.pixels.setPixelColor(i, Color(0, 0, 0))
                 self.pixels.show()
                 self.currently_highlighted = None
-            return True
         else:
-            print(f"No block found at location {location}")
-            return False
+            new_count = current_count - count
+            self.blocks[location] = (color, length, width, new_count)
 
     def cleanup(self) -> None:
         """Clean up resources when done."""
@@ -98,22 +94,31 @@ class PickByLightController:
 if __name__ == "__main__":
     light_controller = PickByLightController(led_pin=12, num_pixels=30)
 
-    light_controller.add_block_to_location(1, length=2.0, width=4.0, color="red", count=2)
-    light_controller.add_block_to_location(5, length=2.0, width=4.0, color="blue", count=1)
-    light_controller.add_block_to_location(10, length=2.0, width=4.0, color="green", count=3)
+    light_controller.add_block_to_location(10, length=2.0, width=4.0, color="red", count=2)
+    light_controller.add_block_to_location(15, length=2.0, width=4.0, color="blue", count=1)
+    light_controller.add_block_to_location(20, length=2.0, width=4.0, color="green", count=3)
 
     print("\nTesting block highlighting:")
-    light_controller.show_block(1)
-    input("Press Enter to continue to next block...")
-
-    light_controller.show_block(5)
-    input("Press Enter to continue to next block...")
-
     light_controller.show_block(10)
+    input("Press Enter to continue to next block...")
+
+    try:
+        light_controller.show_block(15)
+    except ValueError as e:
+        print(e)
+    input("Press Enter to continue to next block...")
+
+    try:
+        light_controller.show_block(20)
+    except ValueError as e:
+        print(e)
     input("Press Enter to continue...")
 
-    current = light_controller.get_currently_highlighted_block()
-    print(f"Currently highlighted block: {current}")
+    try:
+        current = light_controller.get_currently_highlighted_block()
+        print(f"Currently highlighted block: {current}")
+    except ValueError as e:
+        print(e)
 
     print("\nTesting block removal:")
     light_controller.remove_block(5)

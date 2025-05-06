@@ -1,62 +1,83 @@
 from flask import Blueprint, render_template, redirect, url_for, request
 from blueprint.render import render_blueprint, render_control_views
 from blueprint.loader import select_random_blueprint, load_blueprint
+from pick_by_light.pick_by_light_controller import PickByLightController
 
-blueprint = Blueprint('blueprint', __name__)
+def create_blueprint(pick_by_light_controller: PickByLightController) -> Blueprint:
+    blueprint = Blueprint('blueprint', __name__)
 
-@blueprint.route('/log_in', methods=['POST'])
-def log_in():
-    return redirect(url_for('blueprint.blueprint_get', step=1, blueprint=select_random_blueprint()))
+    register_auth_routes(blueprint)
+    register_blueprint_routes(blueprint, pick_by_light_controller)
+    register_control_routes(blueprint)
 
-@blueprint.route('/log_off', methods=['POST'])
-def log_off():
-    return redirect(url_for('index'))
+    return blueprint
 
-@blueprint.route('/blueprint', methods=['POST'])
-def blueprint_post():
-    if 'step' not in request.form or 'blueprint' not in request.form:
+def register_auth_routes(blueprint: Blueprint) -> None:
+    @blueprint.route('/log_in', methods=['POST'])
+    def log_in():
+        return redirect(url_for('blueprint.blueprint_get', step=1, blueprint=select_random_blueprint()))
+
+    @blueprint.route('/log_off', methods=['POST'])
+    def log_off():
         return redirect(url_for('index'))
-    step = int(request.form['step'])
-    blueprint = request.form['blueprint']
 
-    if request.form.get('direction') == 'back':
-        return redirect(url_for('blueprint.blueprint_get', step=max(1, step-1), blueprint=blueprint))
-    return redirect(url_for('blueprint.blueprint_get', step=step+1, blueprint=blueprint))
+def register_blueprint_routes(blueprint: Blueprint, pick_by_light_controller: PickByLightController) -> None:
+    @blueprint.route('/blueprint', methods=['POST'])
+    def blueprint_post():
+        if 'step' not in request.form or 'blueprint' not in request.form:
+            return redirect(url_for('index'))
+        step = int(request.form['step'])
+        blueprint_name = request.form['blueprint']
 
-@blueprint.route('/blueprint', methods=['GET'])
-def blueprint_get():
-    if 'blueprint' not in request.args:
-        return redirect(url_for('index'))
-    blueprint = request.args['blueprint']
-    if 'step' not in request.args:
-        return redirect(url_for('blueprint.blueprint_get', step=1, blueprint=blueprint))
-    step = int(request.args.get('step', 1))
+        if request.form.get('direction') == 'back':
+            return redirect(url_for('blueprint.blueprint_get', step=max(1, step-1), blueprint=blueprint_name))
+        return redirect(url_for('blueprint.blueprint_get', step=step+1, blueprint=blueprint_name))
 
-    steps = load_blueprint(blueprint)
-    max_steps = len(steps)
-    if step > max_steps:
-        return redirect(url_for('blueprint.control_get', blueprint=blueprint))
+    @blueprint.route('/blueprint', methods=['GET'])
+    def blueprint_get():
+        if 'blueprint' not in request.args:
+            return redirect(url_for('index'))
+        blueprint_name = request.args['blueprint']
+        if 'step' not in request.args:
+            return redirect(url_for('blueprint.blueprint_get', step=1, blueprint=blueprint_name))
+        step = int(request.args.get('step', 1))
 
-    image = render_blueprint(steps[:step])
-    return render_template('blueprint.html', image=image, step=step, max_steps=max_steps, blueprint=blueprint)
+        steps = load_blueprint(blueprint_name)
+        max_steps = len(steps)
+        if step > max_steps:
+            return redirect(url_for('blueprint.control_get', blueprint=blueprint_name))
 
-@blueprint.route('/control', methods=['POST'])
-def control_post():
-    if 'step' not in request.form or 'blueprint' not in request.form:
-        return redirect(url_for('index'))
-    step = int(request.form['step'])
-    blueprint = request.form['blueprint']
+        image = render_blueprint(steps[:step])
 
-    if request.form.get('direction') == 'back':
-        return redirect(url_for('blueprint.blueprint_get', step=max(1, step-1), blueprint=blueprint))
-    return redirect(url_for('blueprint.blueprint_get', step=1, blueprint=select_random_blueprint()))
+        location = pick_by_light_controller.get_block_location(length=steps[step-1][2], width=steps[step-1][3], color=steps[step-1][4])
 
-@blueprint.route('/control', methods=['GET'])
-def control_get():
-    if 'blueprint' not in request.args:
-        return redirect(url_for('index'))
-    blueprint = request.args['blueprint']
+        if location is None:
+            warning = "No block found in the storage"
+            return render_template('blueprint.html', image=image, step=step, max_steps=max_steps, blueprint=blueprint_name, warning=warning)
+        else:
+            pick_by_light_controller.show_block(location)
+            pick_by_light_controller.remove_block(location)
 
-    steps = load_blueprint(blueprint)
-    image_front, image_back, image_right, image_left = render_control_views(steps)
-    return render_template('control.html', image_front=image_front, image_right=image_right, image_back=image_back, image_left=image_left , step=len(steps)+1, max_steps=len(steps), blueprint=blueprint)
+        return render_template('blueprint.html', image=image, step=step, max_steps=max_steps, blueprint=blueprint_name)
+
+def register_control_routes(blueprint: Blueprint) -> None:
+    @blueprint.route('/control', methods=['POST'])
+    def control_post():
+        if 'step' not in request.form or 'blueprint' not in request.form:
+            return redirect(url_for('index'))
+        step = int(request.form['step'])
+        blueprint_name = request.form['blueprint']
+
+        if request.form.get('direction') == 'back':
+            return redirect(url_for('blueprint.blueprint_get', step=max(1, step-1), blueprint=blueprint_name))
+        return redirect(url_for('blueprint.blueprint_get', step=1, blueprint=select_random_blueprint()))
+
+    @blueprint.route('/control', methods=['GET'])
+    def control_get():
+        if 'blueprint' not in request.args:
+            return redirect(url_for('index'))
+        blueprint_name = request.args['blueprint']
+
+        steps = load_blueprint(blueprint_name)
+        image_front, image_back, image_right, image_left = render_control_views(steps)
+        return render_template('control.html', image_front=image_front, image_right=image_right, image_back=image_back, image_left=image_left , step=len(steps)+1, max_steps=len(steps), blueprint=blueprint_name)
