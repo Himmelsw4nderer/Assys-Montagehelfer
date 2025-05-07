@@ -7,5 +7,7 @@ requires-python = ">=3.10"
 dependencies = [
     "flask>=3.1.0",
     "matplotlib>=3.10.1",
+    "mediapipe>=0.10.21",
+    "opencv-python>=4.11.0.86",
     "pyartnet>=1.0.1",
 ]
