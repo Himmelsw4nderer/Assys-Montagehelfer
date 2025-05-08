@@ -6,5 +6,8 @@
         <button type="submit" class="btn btn-primary mt-3">Log In</button>
     </form>
     <a href="{{ url_for('pick_by_light.brick_storage') }}" class="btn btn-secondary mt-3">Brick Storage Management</a>
+    <form method="post" action="{{ url_for('blueprint.set_auto_acknowledge') }}">
+        <button type="submit" class="btn btn-success mt-3">Enable Auto Acknowledge</button>
+    </form>
 </div>
 {% endblock %}

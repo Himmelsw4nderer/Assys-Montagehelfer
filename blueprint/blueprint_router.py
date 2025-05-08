@@ -9,6 +9,7 @@ def create_blueprint(pick_by_light_controller: PickByLightController) -> Bluepri
     register_auth_routes(blueprint)
     register_blueprint_routes(blueprint, pick_by_light_controller)
     register_control_routes(blueprint)
+    register_auto_acknowledge_routes(blueprint)
 
     return blueprint
 
@@ -81,3 +82,18 @@ def register_control_routes(blueprint: Blueprint) -> None:
         steps = load_blueprint(blueprint_name)
         image_front, image_back, image_right, image_left = render_control_views(steps)
         return render_template('control.html', image_front=image_front, image_right=image_right, image_back=image_back, image_left=image_left , step=len(steps)+1, max_steps=len(steps), blueprint=blueprint_name)
+
+def register_auto_acknowledge_routes(blueprint: Blueprint):
+    state = {"auto_acknowledged": False}
+
+    @blueprint.route("/auto_acknowledge", methods=["GET"])
+    def get_auto_acknowledge():
+        if state["auto_acknowledged"] == False:
+            return {"auto_acknowledged": False}
+        state["auto_acknowledged"] = False
+        return {"auto_acknowledged": True}
+
+    @blueprint.route("/auto_acknowledge", methods=["POST"])
+    def set_auto_acknowledge():
+        state["auto_acknowledged"] = True
+        return {"auto_acknowledged": state["auto_acknowledged"]}
