@@ -5,7 +5,11 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "board>=1.0",
     "flask>=3.1.0",
     "matplotlib>=3.10.1",
-    "pyartnet>=1.0.1",
+    "opencv-python>=4.11.0.86",
+    "rpi-ws281x>=5.0.0",
+    "tensorflow>=2.19.0",
+    "ultralytics>=8.3.127",
 ]
