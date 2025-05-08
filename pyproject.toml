@@ -1,15 +1,17 @@
 [project]
 name = "assys-montagehelfer"
 version = "0.1.0"
-description = "Add your description here"
+description = "Assembly helper system with camera and speech recognition for automatic Acknowledge of "
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "board>=1.0",
     "flask>=3.1.0",
     "matplotlib>=3.10.1",
+    "mediapipe>=0.10.21",
     "opencv-python>=4.11.0.86",
+    "SpeechRecognition>=3.10.0",
+    "requests>=2.31.0",
+    "pyaudio>=0.2.13",
     "rpi-ws281x>=5.0.0",
-    "tensorflow>=2.19.0",
-    "ultralytics>=8.3.127",
 ]
