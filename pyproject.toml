@@ -10,4 +10,5 @@ dependencies = [
     "mediapipe>=0.10.21",
     "opencv-python>=4.11.0.86",
     "pyartnet>=1.0.1",
+    "ultralytics>=8.3.128",
 ]
