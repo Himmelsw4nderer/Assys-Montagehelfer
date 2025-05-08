@@ -36,7 +36,7 @@ content %}
     </div>
 </div>
 <p>Blueprint {{ blueprint }} with {{ max_steps }} Steps</p>
-<form method="post" action="{{ url_for('blueprint.control_post') }}">
+<form id="controlForm" method="post" action="{{ url_for('blueprint.control_post') }}">
     <input type="hidden" name="step" value="{{ step }}" />
     <input type="hidden" name="blueprint" value="{{ blueprint }}" />
     <div class="d-flex justify-content-between mt-3">
@@ -59,4 +59,29 @@ content %}
     </div>
 </form>
 
+<script>
+    // Poll the auto_acknowledge endpoint every second
+    function checkAutoAcknowledge() {
+        fetch("{{ url_for('blueprint.get_auto_acknowledge') }}")
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.auto_acknowledged === true) {
+                    // If auto_acknowledged is true, submit the form with "finish" direction
+                    const form = document.getElementById("controlForm");
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = "direction";
+                    input.value = "finish";
+                    form.appendChild(input);
+                    form.submit();
+                }
+            })
+            .catch((error) =>
+                console.error("Error checking auto acknowledge:", error),
+            );
+    }
+
+    // Check every second
+    setInterval(checkAutoAcknowledge, 500);
+</script>
 {% endblock %}
