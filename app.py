@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from blueprint.render import render_blueprint, render_control_views
 from blueprint.loader import select_random_blueprint, load_blueprint
 from pick_by_light.pick_by_light_controller import PickByLightController
@@ -15,6 +15,24 @@ def index():
 @app.route('/log_in', methods=['POST'])
 def log_in():
     return redirect(url_for('blueprint_get', step=1, blueprint=select_random_blueprint()))
+
+@app.route('/auto_acknowledge', methods=['POST'])
+def auto_acknowledge():
+    """Endpoint for automatic acknowledgment from camera/speech/keyword recognition."""
+    # Check if we're in blueprint or control view
+    if request.referrer and 'blueprint' in request.referrer:
+        # Extract current step and blueprint from referrer URL
+        parts = request.referrer.split('?', 1)
+        if len(parts) > 1:
+            query_params = dict(param.split('=') for param in parts[1].split('&'))
+            if 'step' in query_params and 'blueprint' in query_params:
+                step = int(query_params['step'])
+                blueprint = query_params['blueprint']
+                # Move to next step
+                return redirect(url_for('blueprint_get', step=step+1, blueprint=blueprint))
+    
+    # If unable to determine context or in control view, just return success
+    return jsonify({"success": True, "message": "Acknowledgment received"})
 
 @app.route('/log_off', methods=['POST'])
 def log_off():

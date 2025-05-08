@@ -1,7 +1,7 @@
 [project]
 name = "assys-montagehelfer"
 version = "0.1.0"
-description = "Add your description here"
+description = "Assembly helper system with camera and speech recognition for automatic Acknowledge of "
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -9,4 +9,7 @@ dependencies = [
     "matplotlib>=3.10.1",
     "mediapipe>=0.10.21",
     "opencv-python>=4.11.0.86",
+    "SpeechRecognition>=3.10.0",
+    "requests>=2.31.0",
+    "pyaudio>=0.2.13",
 ]
