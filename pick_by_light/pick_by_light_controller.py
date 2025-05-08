@@ -1,127 +1,130 @@
-from app import message_queue
-from threading import Thread, Lock
-import socket
-from queue import Queue
-import pyartnet
-from time import sleep
-from typing import List, Dict, Any, Optional
+from rpi_ws281x import PixelStrip, Color
+from typing import Dict, Optional, Any, Tuple
+from pick_by_light.color_helper import get_color_by_name
 
-class PickByLightController(Thread):
-    """
-    Steuerklasse für Pick-by-Light Systeme mittels ArtNet-Protokoll.
+class PickByLightController:
+    def __init__(self, led_pin: int = 12, num_pixels: int = 26) -> None:
+        """Initialize the light controller with the GPIO pin for the LED strip."""
+        self.led_pin = led_pin
+        self.num_pixels = num_pixels
+        self.blocks: Dict[int, Tuple[str, float, float, int]] = {} # location (key), color, length, width, count
+        self.currently_highlighted: Optional[Any] = None
 
-    Verwendet pyartnet zur Kommunikation mit LED-Controllern (z.B. ESP32/ESP8266)
-    und steuert WS2812B LED-Streifen für Pick-by-Light Anwendungen.
-    """
+        LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
+        LED_DMA = 10          # DMA channel to use for generating signal (try 10)
+        LED_BRIGHTNESS = 128  # Set to 0 for darkest and 255 for brightest
+        LED_INVERT = False    # True to invert the signal (when using NPN transistor level shift)
+        LED_CHANNEL = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
-    def __init__(self, message_queue: Queue, ip: str = '<ESP-IP>', port: int = 6454,
-                led_count: int = 16, color: List[int] = [255, 255, 255], universe: int = 0) -> None:
-        """
-        Initialisiert den Pick-by-Light Controller.
-        """
-        super().__init__()
-        self.ip = ip
-        self.port = port
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.running = True
-        self.message_queue = message_queue
-        self.color = color
-        self.led_count = led_count
-        self.universe = universe
+        self.pixels = PixelStrip(self.num_pixels, self.led_pin, LED_FREQ_HZ, LED_DMA, LED_INVERT,
+                              LED_BRIGHTNESS, LED_CHANNEL)
+        self.pixels.begin()
 
-        self.artnet: Optional[pyartnet.ArtNetNode] = None
-        self.universe_obj: Any = None
-        self.channel: Any = None
-        self.led_values: List[int] = [0] * (led_count * 3)
+        self.cleanup()
 
-        self._lock = Lock()
+    def add_block_to_location(self, location: Any, length: float, width: float, color: str, count: int = 1) -> None:
+        """Add a block to a specific location with its properties."""
+        if location in self.blocks:
+            raise ValueError(f"Block already exists at location {location}.")
+        if location > self.num_pixels or location < 0:
+            raise ValueError(f"Location {location} is out of range.")
 
-    def run(self) -> None:
-        """
-        Haupt-Thread-Methode, die das ArtNet-Setup initialisiert und die Schleife startet.
-        """
-        self.setup_artnet(self.ip, self.port, self.universe)
-        while self.running:
-            self.loop()
+        # Make sure length is always longer than width
+        if length > width:
+            length, width = width, length
 
-    def loop(self) -> None:
-        """
-        Hauptschleife des Controllers, die auf Nachrichten wartet und
-        die entsprechenden LEDs steuert.
-        """
-        if message_queue.empty():
-            return
-        message: Dict[str, Any] = self.message_queue.get()
-        position = message.get("position")
-        # Convert position to integer
-        if position is None:
-            return
-        try:
-            position = int(position)
-        except (ValueError, TypeError):
-            print(f"Invalid position value: {position}")
-            return
+        self.blocks[location] = (color, length, width, count)
+
+    def get_block_location(self, length: float, width: float, color: str) -> Optional[int]:
+        """Get the location of a block with the specified properties."""
+        # Make sure length is always longer than width
+        if length > width:
+            length, width = width, length
+
+        for location, (block_color, block_length, block_width, count) in self.blocks.items():
+            if block_length == length and block_width == width and block_color == color:
+                return location
+        return None
+
+    def show_block(self, location: int) -> None:
+        """Highlight the block at the specified location by turning on the LED."""
+        if location not in self.blocks:
+            raise ValueError(f"No block found at location {location}")
+
+        color_name = self.blocks[location][0]  # Color is the first element in the tuple
+        color = get_color_by_name(color_name)
+
+        self.cleanup()
+        self.pixels.setPixelColor(location, color)
+        self.pixels.show()
+        self.currently_highlighted = location
+
+    def get_currently_highlighted_block(self) -> Optional[int]:
+        """Return the location of the currently highlighted block."""
+        if not self.currently_highlighted:
+            raise ValueError("No block is currently highlighted")
+        return self.currently_highlighted
+
+    def remove_block(self, location: Any, count: int = 1) -> None:
+        """Remove a highlighted block from the specified location."""
+        if location not in self.blocks:
+            raise ValueError(f"No block found at location {location}")
+
+        color, length, width, current_count = self.blocks[location]
+
+        if count < 0 or count >= current_count:
+            del self.blocks[location]
+
+            if self.currently_highlighted == location:
+                for i in range(self.num_pixels):
+                    self.pixels.setPixelColor(i, Color(0, 0, 0))
+                self.pixels.show()
+                self.currently_highlighted = None
         else:
-            print("No position provided")
-            return
-        try:
-            self.set_all_leds()
-            self.set_led(position, self.color)
-        except Exception as e:
-            print(f"Error setting LED: {e}")
-        sleep(0.1)
+            new_count = current_count - count
+            self.blocks[location] = (color, length, width, new_count)
 
-    def set_led(self, position: int, color: List[int]) -> None:
-        """
-        Setzt eine einzelne LED auf die angegebene Farbe.
+    def cleanup(self) -> None:
+        """Clean up resources when done."""
+        for i in range(self.num_pixels):
+            self.pixels.setPixelColor(i, Color(0, 0, 0))
+        self.pixels.show()
 
-        Raises:
-            ValueError: Wenn die Position ungültig ist oder der Channel nicht initialisiert wurde
-        """
-        if not(0 <= position < self.led_count):
-            raise ValueError("Invalid position")
-        if self.channel is None:
-            raise ValueError("Channel not initialized")
-        with self._lock:
-            idx = position * 3
 
-            self.led_values[idx] = color[0]
-            self.led_values[idx + 1] = color[1]
-            self.led_values[idx + 2] = color[2]
+if __name__ == "__main__":
+    light_controller = PickByLightController(led_pin=12, num_pixels=30)
 
-            self.channel.set_values(self.led_values)
+    light_controller.add_block_to_location(10, length=2.0, width=4.0, color="red", count=2)
+    light_controller.add_block_to_location(15, length=2.0, width=4.0, color="blue", count=1)
+    light_controller.add_block_to_location(20, length=2.0, width=4.0, color="green", count=3)
 
-    def set_all_leds(self, color: List[int] = [0, 0, 0]) -> None:
-        """
-        Setzt alle LEDs auf die angegebene Farbe.
-        Raises:
-            ValueError: Wenn der Channel nicht initialisiert wurde
-        """
-        if self.channel is None:
-            raise ValueError("Channel not initialized")
-        with self._lock:
-            for i in range(self.led_count):
-                idx = i * 3
-                self.led_values[idx] = color[0]
-                self.led_values[idx + 1] = color[1]
-                self.led_values[idx + 2] = color[2]
-        self.channel.set_values(self.led_values)
+    print("\nTesting block highlighting:")
+    light_controller.show_block(10)
+    input("Press Enter to continue to next block...")
 
-    def setup_artnet(self, ip: str, port: int, universe: int) -> None:
-        """
-        Initialisiert die ArtNet-Verbindung.
-        """
-        self.artnet = pyartnet.ArtNetNode(ip, port)
-        self.universe_obj = self.artnet.add_universe(universe)
-        self.channel = self.universe_obj.add_channel(start=1, width=self.led_count * 3)
-        self.channel.set_values([0] * (self.led_count * 3))
+    try:
+        light_controller.show_block(15)
+    except ValueError as e:
+        print(e)
+    input("Press Enter to continue to next block...")
 
-    def stop(self) -> None:
-        """
-        Stoppt den Controller und schaltet alle LEDs aus.
-        """
-        if self.channel:
-            self.set_all_leds([0, 0, 0])
-            sleep(0.1)
+    try:
+        light_controller.show_block(20)
+    except ValueError as e:
+        print(e)
+    input("Press Enter to continue...")
 
-        self.running = False
+    try:
+        current = light_controller.get_currently_highlighted_block()
+        print(f"Currently highlighted block: {current}")
+    except ValueError as e:
+        print(e)
+
+    print("\nTesting block removal:")
+    light_controller.remove_block(5)
+
+    light_controller.show_block(1)
+    input("Press Enter to finish...")
+
+    print(light_controller.blocks)
+    light_controller.cleanup()

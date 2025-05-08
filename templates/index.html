@@ -2,8 +2,12 @@
 %}
 <div class="container mt-5">
     <h1>Asys-Montage</h1>
-    <form method="post" , action="{{ url_for('log_in') }}">
+    <form method="post" , action="{{ url_for('blueprint.log_in') }}">
         <button type="submit" class="btn btn-primary mt-3">Log In</button>
+    </form>
+    <a href="{{ url_for('pick_by_light.brick_storage') }}" class="btn btn-secondary mt-3">Brick Storage Management</a>
+    <form method="post" action="{{ url_for('blueprint.set_auto_acknowledge') }}">
+        <button type="submit" class="btn btn-success mt-3">Enable Auto Acknowledge</button>
     </form>
 </div>
 {% endblock %}
