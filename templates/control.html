@@ -7,7 +7,7 @@ content %}
     method="post"
     action="{{ url_for('blueprint.control_post') }}"
 >
-    <input type="hidden" name="</form>step" value="{{ step }}" />
+    <input type="hidden" name="step" value="{{ step }}" />
     <input type="hidden" name="blueprint" value="{{ blueprint }}" />
 
     <div class="d-flex align-items-center">
@@ -16,19 +16,19 @@ content %}
                 type="submit"
                 name="direction"
                 value="to_last_step"
-                class="btn btn-secondary py-3 px-4 fs-3 nexttoimage mb-2"
+                class="btn btn-secondary py-3 px-4 fs-1 nexttoimage mb-2"
                 style="width: 100%"
             >
-                Back
+                <h2>Back</h2>
             </button>
             <button
                 type="submit"
                 name="direction"
                 value="to_first_step"
-                class="btn btn-warning py-3 px-4 fs-3 nexttoimage"
+                class="btn btn-warning py-3 px-4 fs-1 nexttoimage"
                 style="width: 100%"
             >
-                Back to start
+                <h2>Back to start</h2>
             </button>
         </div>
 
@@ -76,17 +76,17 @@ content %}
                 type="submit"
                 name="direction"
                 value="next"
-                class="btn btn-success py-3 px-4 fs-3 nexttoimage mb-2"
+                class="btn btn-success py-3 px-4 fs-1 nexttoimage mb-2"
                 style="width: 100%"
             >
-                Next Assembly
+                <h2>Next Assembly</h2>
             </button>
             <a
                 href="{{ url_for('blueprint.log_off') }}"
-                class="btn btn-danger py-3 px-4 fs-3 nexttoimage"
+                class="btn btn-danger py-3 px-4 fs-1 nexttoimage d-flex align-items-center justify-content-center"
                 style="width: 100%"
             >
-                Log Out
+                <h2>Log Out</h2>
             </a>
         </div>
     </div>
