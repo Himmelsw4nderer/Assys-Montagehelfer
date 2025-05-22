@@ -66,11 +66,14 @@ def register_control_routes(blueprint: Blueprint) -> None:
     def control_post():
         if 'step' not in request.form or 'blueprint' not in request.form:
             return redirect(url_for('index'))
-        step = int(request.form['step'])
         blueprint_name = request.form['blueprint']
 
-        if request.form.get('direction') == 'back':
-            return redirect(url_for('blueprint.blueprint_get', step=max(1, step-1), blueprint=blueprint_name))
+        if request.form.get('direction') == 'to_last_step':
+            steps = load_blueprint(blueprint_name)
+            last_step = len(steps)
+            return redirect(url_for('blueprint.blueprint_get', step=last_step, blueprint=blueprint_name))
+        elif request.form.get('direction') == 'to_first_step':
+            return redirect(url_for('blueprint.blueprint_get', step=1, blueprint=blueprint_name))
         return redirect(url_for('blueprint.blueprint_get', step=1, blueprint=select_random_blueprint()))
 
     @blueprint.route('/control', methods=['GET'])
