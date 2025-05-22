@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,10 +9,91 @@
             href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
             rel="stylesheet"
         />
+        <!-- Font Awesome for icons -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        />
+        <style>
+            :root {
+                /* Light theme (default) */
+                --bg-color: #ffffff;
+                --text-color: #212529;
+                --navbar-bg: #f8f9fa;
+                --container-bg: #ffffff;
+                --gradient-color-1: #0047ab;
+                --gradient-color-2: #ffffff;
+            }
+
+            [data-theme="dark"] {
+                /* Dark theme */
+                --bg-color: #121212;
+                --text-color: #e0e0e0;
+                --navbar-bg: #333333;
+                --container-bg: #2a2a2a;
+                --gradient-color-1: #002855;
+                --gradient-color-2: #121212;
+            }
+
+            body {
+                color: var(--text-color);
+                background-color: var(--bg-color);
+            }
+
+            .navbar {
+                background-color: var(--navbar-bg) !important;
+            }
+
+            .navbar-light .navbar-brand,
+            .navbar-light .navbar-nav .nav-link {
+                color: var(--text-color);
+            }
+
+            .hover-zoom {
+                transition: transform 0.3s ease;
+            }
+            .hover-zoom:hover {
+                transform: scale(1.05);
+            }
+
+            .content-container {
+                background-color: var(--container-bg);
+                border-radius: 15px;
+            }
+
+            .animated-bg {
+                background: linear-gradient(-45deg, var(--gradient-color-1), var(--gradient-color-2), var(--gradient-color-1), var(--gradient-color-2));
+                background-size: 400% 400%;
+                animation: gradient 15s ease infinite;
+            }
+
+            @keyframes gradient {
+                0% {
+                    background-position: 0% 50%;
+                }
+                50% {
+                    background-position: 100% 50%;
+                }
+                100% {
+                    background-position: 0% 50%;
+                }
+            }
+
+            .theme-toggle-btn {
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 1.2rem;
+                color: var(--text-color);
+                padding: 0.25rem 0.5rem;
+                margin-right: 10px;
+                border-radius: 50%;
+            }
+        </style>
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Assistenz-Montage</a>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <a class="navbar-brand" href="#">ASYS-MONTAGE</a>
             <button
                 class="navbar-toggler"
                 type="button"
@@ -25,14 +106,65 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- Auto Acknowledge Checkboxes in the middle -->
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item mr-3">
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="voiceAcknowledge"
+                                {%
+                                if
+                                voice_acknowledge
+                                %}checked{%
+                                endif
+                                %}
+                            />
+                            <label
+                                class="form-check-label"
+                                for="voiceAcknowledge"
+                            >
+                                Auto Acknowledge mit Voice
+                            </label>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="gestureAcknowledge"
+                                {%
+                                if
+                                gesture_acknowledge
+                                %}checked{%
+                                endif
+                                %}
+                            />
+                            <label
+                                class="form-check-label"
+                                for="gestureAcknowledge"
+                            >
+                                Auto Acknowledge mit Gestures
+                            </label>
+                        </div>
+                    </li>
+                </ul>
                 <ul class="navbar-nav ml-auto">
+                    <!-- Dark mode toggle button -->
+                    <li class="nav-item">
+                        <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Dark/Light Mode">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
                     <li class="nav-item">
                         <form
                             method="post"
                             action="{{ url_for('blueprint.log_off') }}"
                         >
-                            <button type="submit" class="btn btn-danger">
-                                Log Out
+                            <button type="submit" class="btn btn-danger hover-zoom">
+                                <i class="fas fa-sign-out-alt me-2"></i> Log Out
                             </button>
                         </form>
                     </li>
@@ -41,14 +173,16 @@
                             method="post"
                             action="{{ url_for('blueprint.log_in') }}"
                         >
-                            <button type="submit" class="btn btn-primary">
-                                Log In
+                            <button type="submit" class="btn btn-primary hover-zoom">
+                                <i class="fas fa-sign-in-alt me-2"></i> Log In
                             </button>
                         </form>
                     </li>
                 </ul>
             </div>
         </nav>
+
+        <div class="animated-bg position-fixed w-100 h-100" style="top: 0; left: 0; z-index: -1"></div>
 
         <div class="container-fluid">
             {% if warning %}
@@ -69,7 +203,7 @@
             {% endif %}
         </div>
 
-        <div class="container">
+        <div class="container-fluid">
             {% block content %}
             <!-- Content will be injected here -->
             {% endblock %}
@@ -79,5 +213,42 @@
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+        <!-- Dark mode toggle script -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const themeToggleBtn = document.getElementById('theme-toggle');
+                const themeIcon = themeToggleBtn.querySelector('i');
+
+                // Check for saved theme preference or use default
+                const currentTheme = localStorage.getItem('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', currentTheme);
+
+                // Update button icon based on current theme
+                updateThemeIcon(currentTheme);
+
+                // Toggle theme on button click
+                themeToggleBtn.addEventListener('click', function() {
+                    const currentTheme = document.documentElement.getAttribute('data-theme');
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+
+                    updateThemeIcon(newTheme);
+                });
+
+                // Helper function to update the icon
+                function updateThemeIcon(theme) {
+                    if (theme === 'dark') {
+                        themeIcon.classList.remove('fa-moon');
+                        themeIcon.classList.add('fa-sun');
+                    } else {
+                        themeIcon.classList.remove('fa-sun');
+                        themeIcon.classList.add('fa-moon');
+                    }
+                }
+            });
+        </script>
     </body>
 </html>

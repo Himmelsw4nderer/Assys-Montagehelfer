@@ -1,13 +1,85 @@
 {% extends "base.html" %} {% block title %} Home {% endblock %} {% block content
 %}
-<div class="container mt-5">
-    <h1>Asys-Montage</h1>
-    <form method="post" , action="{{ url_for('blueprint.log_in') }}">
-        <button type="submit" class="btn btn-primary mt-3">Log In</button>
-    </form>
-    <a href="{{ url_for('pick_by_light.brick_storage') }}" class="btn btn-secondary mt-3">Brick Storage Management</a>
-    <form method="post" action="{{ url_for('blueprint.set_auto_acknowledge') }}">
-        <button type="submit" class="btn btn-success mt-3">Enable Auto Acknowledge</button>
-    </form>
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <div class="content-container p-4 rounded border shadow-lg">
+                    <h1 class="display-3 mb-4 fw-bold">ASYS-MONTAGE</h1>
+                    <div class="p-4 rounded">
+                        <div
+                            class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-5"
+                        >
+                            <form
+                                method="post"
+                                action="{{ url_for('blueprint.log_in') }}"
+                                class="m-2"
+                            >
+                                <button
+                                    type="submit"
+                                    class="btn btn-success btn-lg px-5 py-3 fw-bold hover-zoom"
+                                    style="width: 100%"
+                                >
+                                    <i class="fas fa-sign-in-alt me-2"></i>
+                                    Getting Started
+                                </button>
+                            </form>
+                            <a
+                                href="{{ url_for('pick_by_light.brick_storage') }}"
+                                class="btn btn-secondary btn-lg px-4 py-3 m-2 fw-bold hover-zoom"
+                            >
+                                <i class="fas fa-box-open me-2"></i> Brick
+                                Storage Management
+                            </a>
+                        </div>
+
+                        <!-- Settings Card for auto gesture and voice ack -->
+                        <div class="card mt-4 shadow">
+                            <div class="card-header bg-primary text-white">
+                                <h4><i class="fas fa-cog me-2"></i>Einstellungen</h4>
+                            </div>
+                            <div class="card-body">
+                                <form method="post" action="{{ url_for('blueprint.update_settings') }}" class="p-2">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="autoGestureAck" name="autoGestureAck">
+                                                <label class="form-check-label" for="autoGestureAck">Auto Gesture Ack</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="autoVoiceAck" name="autoVoiceAck">
+                                                <label class="form-check-label" for="autoVoiceAck">Auto Voice Ack</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-primary hover-zoom">
+                                            <i class="fas fa-save me-2"></i>Einstellungen speichern
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .hover-zoom {
+        transition: transform 0.3s ease;
+    }
+    .hover-zoom:hover {
+        transform: scale(1.05);
+    }
+
+    .content-container {
+        background-color: white;
+        border-radius: 15px;
+    }
+</style>
 {% endblock %}

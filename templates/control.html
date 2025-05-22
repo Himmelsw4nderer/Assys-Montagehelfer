@@ -1,61 +1,103 @@
 {% extends "base.html" %} {% block title %} Blueprint {% endblock %} {% block
 content %}
-<h1>Please Control the object from all Sides</h1>
-<div class="d-flex flex-column">
-    <div class="d-flex justify-content-center mb-3">
-        <div class="text-center me-3">
-            <h5>Front View</h5>
-            <image
-                src="data:image/png;base64,{{ image_front }}"
-                class="image-fluid"
-            />
-        </div>
-        <div class="text-center">
-            <h5>Back View</h5>
-            <image
-                src="data:image/png;base64,{{ image_back }}"
-                class="image-fluid"
-            />
-        </div>
-    </div>
-    <div class="d-flex justify-content-center">
-        <div class="text-center me-3">
-            <h5>Left View</h5>
-            <image
-                src="data:image/png;base64,{{ image_left }}"
-                class="image-fluid"
-            />
-        </div>
-        <div class="text-center">
-            <h5>Right View</h5>
-            <image
-                src="data:image/png;base64,{{ image_right }}"
-                class="image-fluid"
-            />
-        </div>
-    </div>
-</div>
-<p>Blueprint {{ blueprint }} with {{ max_steps }} Steps</p>
-<form id="controlForm" method="post" action="{{ url_for('blueprint.control_post') }}">
+<form
+    id="controlForm"
+    method="post"
+    action="{{ url_for('blueprint.control_post') }}"
+>
     <input type="hidden" name="step" value="{{ step }}" />
     <input type="hidden" name="blueprint" value="{{ blueprint }}" />
-    <div class="d-flex justify-content-between mt-3">
-        <button
-            type="submit"
-            name="direction"
-            value="back"
-            class="btn btn-secondary"
-        >
-            Back
-        </button>
-        <button
-            type="submit"
-            name="direction"
-            value="finish"
-            class="btn btn-success"
-        >
-            Finish
-        </button>
+
+    <div class="card p-4 bg-light">
+        <h1 class="mb-3">Please Control the object from all Sides</h1>
+        <div class="d-flex align-items-center">
+            <div class="d-flex flex-column" style="width: 600px">
+                <button
+                    type="submit"
+                    name="direction"
+                    value="to_last_step"
+                    class="btn btn-secondary py-3 px-4 fs-1 nexttoimage mb-2"
+                    style="width: 100%"
+                >
+                    <h2>Back</h2>
+                </button>
+                <button
+                    type="submit"
+                    name="direction"
+                    value="to_first_step"
+                    class="btn btn-warning py-3 px-4 fs-1 nexttoimage"
+                    style="width: 100%"
+                >
+                    <h2>Back to start</h2>
+                </button>
+            </div>
+
+            <div class="d-flex flex-column mx-3">
+                <div class="card bg-white p-3 mb-3">
+                    <div class="d-flex justify-content-center">
+                        <div class="text-center me-3">
+                            <h5>Front View</h5>
+                            <image
+                                src="data:image/png;base64,{{ image_front }}"
+                                class="image-fluid"
+                                id="frontImage"
+                                style="width: 95%"
+                            />
+                        </div>
+                        <div class="text-center">
+                            <h5>Back View</h5>
+                            <image
+                                src="data:image/png;base64,{{ image_back }}"
+                                class="image-fluid"
+                                id="backImage"
+                                style="width: 95%"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div class="card bg-white p-3">
+                    <div class="d-flex justify-content-center">
+                        <div class="text-center me-3">
+                            <h5>Left View</h5>
+                            <image
+                                src="data:image/png;base64,{{ image_left }}"
+                                class="image-fluid"
+                                id="leftImage"
+                                style="width: 95%"
+                            />
+                        </div>
+                        <div class="text-center">
+                            <h5>Right View</h5>
+                            <image
+                                src="data:image/png;base64,{{ image_right }}"
+                                class="image-fluid"
+                                id="rightImage"
+                                style="width: 95%"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-column" style="width: 600px">
+                <button
+                    type="submit"
+                    name="direction"
+                    value="next"
+                    class="btn btn-success py-3 px-4 fs-1 nexttoimage mb-2"
+                    style="width: 100%"
+                >
+                    <h2>Next Assembly</h2>
+                </button>
+                <a
+                    href="{{ url_for('blueprint.log_off') }}"
+                    class="btn btn-danger py-3 px-4 fs-1 nexttoimage d-flex align-items-center justify-content-center"
+                    style="width: 100%"
+                >
+                    <h2>Log Out</h2>
+                </a>
+            </div>
+        </div>
     </div>
 </form>
 
@@ -80,7 +122,22 @@ content %}
                 console.error("Error checking auto acknowledge:", error),
             );
     }
+    // Adjust button height to match image and include h5 title height
+    function adjustButtonHeight() {
+        const imageContainer = document.querySelector(".card .text-center");
+        const titleHeight = imageContainer.querySelector("h5").offsetHeight;
+        const imageHeight = document.getElementById("frontImage").clientHeight;
+        const totalHeight = imageHeight + titleHeight;
 
+        const buttons = document.querySelectorAll(".btn.nexttoimage");
+        buttons.forEach((button) => {
+            button.style.height = totalHeight + "px";
+        });
+    }
+
+    // Call once when loaded and on window resize
+    window.addEventListener("load", adjustButtonHeight);
+    window.addEventListener("resize", adjustButtonHeight);
     // Check every second
     setInterval(checkAutoAcknowledge, 500);
 </script>

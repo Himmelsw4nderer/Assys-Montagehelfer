@@ -66,11 +66,14 @@ def register_control_routes(blueprint: Blueprint) -> None:
     def control_post():
         if 'step' not in request.form or 'blueprint' not in request.form:
             return redirect(url_for('index'))
-        step = int(request.form['step'])
         blueprint_name = request.form['blueprint']
 
-        if request.form.get('direction') == 'back':
-            return redirect(url_for('blueprint.blueprint_get', step=max(1, step-1), blueprint=blueprint_name))
+        if request.form.get('direction') == 'to_last_step':
+            steps = load_blueprint(blueprint_name)
+            last_step = len(steps)
+            return redirect(url_for('blueprint.blueprint_get', step=last_step, blueprint=blueprint_name))
+        elif request.form.get('direction') == 'to_first_step':
+            return redirect(url_for('blueprint.blueprint_get', step=1, blueprint=blueprint_name))
         return redirect(url_for('blueprint.blueprint_get', step=1, blueprint=select_random_blueprint()))
 
     @blueprint.route('/control', methods=['GET'])
@@ -84,7 +87,11 @@ def register_control_routes(blueprint: Blueprint) -> None:
         return render_template('control.html', image_front=image_front, image_right=image_right, image_back=image_back, image_left=image_left , step=len(steps)+1, max_steps=len(steps), blueprint=blueprint_name)
 
 def register_auto_acknowledge_routes(blueprint: Blueprint):
-    state = {"auto_acknowledged": False}
+    state = {
+        "auto_acknowledged": False,
+        "auto_gesture_ack": False,
+        "auto_voice_ack": False
+    }
 
     @blueprint.route("/auto_acknowledge", methods=["GET"])
     def get_auto_acknowledge():
@@ -97,3 +104,9 @@ def register_auto_acknowledge_routes(blueprint: Blueprint):
     def set_auto_acknowledge():
         state["auto_acknowledged"] = True
         return {"auto_acknowledged": state["auto_acknowledged"]}
+
+    @blueprint.route("/settings/update", methods=["POST"])
+    def update_settings():
+        state["auto_gesture_ack"] = "autoGestureAck" in request.form
+        state["auto_voice_ack"] = "autoVoiceAck" in request.form
+        return redirect(url_for("index"))
