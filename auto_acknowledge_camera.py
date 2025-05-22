@@ -91,6 +91,28 @@ def get_hand_position(hand_landmarks) -> Tuple[float, float]:
     return sum(x_positions) / len(x_positions), sum(y_positions) / len(y_positions)
 
 
+def is_hand_open(hand_landmarks) -> bool:
+    """Check if the hand is spread out (not a fist)."""
+    # Get fingertip landmarks (indices 4, 8, 12, 16, 20)
+    # and their corresponding base landmarks (indices 2, 5, 9, 13, 17)
+    fingertips = [hand_landmarks.landmark[i] for i in [4, 8, 12, 16, 20]]
+    finger_bases = [hand_landmarks.landmark[i] for i in [2, 5, 9, 13, 17]]
+
+    # Calculate distances between fingertips and their bases
+    distances = []
+    for tip, base in zip(fingertips, finger_bases):
+        # Euclidean distance in 3D space
+        distance = ((tip.x - base.x)**2 + (tip.y - base.y)**2 + (tip.z - base.z)**2)**0.5
+        distances.append(distance)
+
+    # Calculate average distance
+    avg_distance = sum(distances) / len(distances)
+
+    # If average distance is greater than a threshold, consider the hand open
+    # This threshold might need adjustment based on testing
+    return avg_distance > 0.08
+
+
 def detect_right_to_left_swipe(hand_positions: List[Tuple[float, float]],
                               swipe_threshold: float,
                               swipe_time: float) -> bool:
@@ -165,43 +187,55 @@ def main() -> None:
 
             # Use the first detected hand
             hand_landmarks = results.multi_hand_landmarks[0]
+
+            # Check if the hand is open (spread out, not a fist)
+            hand_open = is_hand_open(hand_landmarks)
+
             current_position = get_hand_position(hand_landmarks)
 
-            if not tracking_hand:
-                tracking_hand = True
-                start_time = time.time()
-                hand_positions = [(start_time, current_position)]
-                print("Started tracking hand")
+            # Only track the hand if it's open
+            if hand_open:
+                if not tracking_hand:
+                    tracking_hand = True
+                    start_time = time.time()
+                    hand_positions = [(start_time, current_position)]
+                    print("Started tracking open hand")
+                else:
+                    # Add the current position with timestamp
+                    hand_positions.append((time.time(), current_position))
+
+                    # Keep only positions from the last 2 seconds
+                    current_time = time.time()
+                    hand_positions = [(t, pos) for t, pos in hand_positions if current_time - t <= 2.0]
+
+                    # Check for right-to-left swipe
+                    if not http_request_sent and len(hand_positions) >= 2:
+                        # Extract just positions for swipe detection
+                        positions_only = [pos for _, pos in hand_positions]
+                        time_positions = [(t, pos) for t, pos in hand_positions]
+
+                        # Check horizontal movement (right to left)
+                        if positions_only[0][0] - positions_only[-1][0] > swipe_threshold:
+                            # Check if movement happened within the time threshold
+                            if time_positions[-1][0] - time_positions[0][0] <= swipe_time:
+                                # Print to console for swipe detection
+                                print("-" * 50)
+                                print("GESTURE DETECTED: Right to left swipe!")
+                                print(f"Movement: {positions_only[0][0] - positions_only[-1][0]:.3f} (threshold: {swipe_threshold})")
+                                print(f"Time: {time_positions[-1][0] - time_positions[0][0]:.2f}s (limit: {swipe_time}s)")
+                                print("-" * 50)
+
+                                print("Right to left swipe detected! Sending acknowledgment...")
+                                http_request_sent = send_acknowledge_request(acknowledgment_url)
+                                # Reset tracking after successful detection
+                                hand_positions = []
+                                tracking_hand = False
             else:
-                # Add the current position with timestamp
-                hand_positions.append((time.time(), current_position))
-
-                # Keep only positions from the last 2 seconds
-                current_time = time.time()
-                hand_positions = [(t, pos) for t, pos in hand_positions if current_time - t <= 2.0]
-
-                # Check for right-to-left swipe
-                if not http_request_sent and len(hand_positions) >= 2:
-                    # Extract just positions for swipe detection
-                    positions_only = [pos for _, pos in hand_positions]
-                    time_positions = [(t, pos) for t, pos in hand_positions]
-
-                    # Check horizontal movement (right to left)
-                    if positions_only[0][0] - positions_only[-1][0] > swipe_threshold:
-                        # Check if movement happened within the time threshold
-                        if time_positions[-1][0] - time_positions[0][0] <= swipe_time:
-                            # Print to console for swipe detection
-                            print("-" * 50)
-                            print("GESTURE DETECTED: Right to left swipe!")
-                            print(f"Movement: {positions_only[0][0] - positions_only[-1][0]:.3f} (threshold: {swipe_threshold})")
-                            print(f"Time: {time_positions[-1][0] - time_positions[0][0]:.2f}s (limit: {swipe_time}s)")
-                            print("-" * 50)
-
-                            print("Right to left swipe detected! Sending acknowledgment...")
-                            http_request_sent = send_acknowledge_request(acknowledgment_url)
-                            # Reset tracking after successful detection
-                            hand_positions = []
-                            tracking_hand = False
+                # If hand is not open anymore, stop tracking
+                if tracking_hand:
+                    tracking_hand = False
+                    hand_positions = []
+                    print("Hand closed, stopped tracking")
         else:
             if tracking_hand:
                 tracking_hand = False
@@ -224,10 +258,10 @@ def main() -> None:
                 cv2.arrowedLine(image, (start_x, start_y), (end_x, end_y), (0, 255, 0), 2)
 
         # Add instructions
-        cv2.putText(image, "Swipe hand right to left", (10, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(image, "Spread hand and swipe right to left", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
 
-        cv2.imshow('MediaPipe Hand Detection - Right to Left Swipe', image)
+        cv2.imshow('MediaPipe Hand Detection - Open Hand Swipe', image)
 
         if cv2.waitKey(5) & 0xFF == ord('q'):
             break
