@@ -35,9 +35,9 @@ if [ "$REQUIREMENTS_OK" = false ]; then
     .venv/bin/pip install opencv-python mediapipe requests
 fi
 
-# Use camera device 2
-CAMERA_ARG="--camera 2"
-echo "Using camera device: 2"
+# Use camera device 0
+CAMERA_ARG="--camera 0"
+echo "Using camera device: 0"
 
 # Start the camera recognition script
 cd "$(dirname "$0")"
