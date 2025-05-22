@@ -45,7 +45,7 @@ def setup_axes() -> Tuple[Any, Any]:
 
 def convert_to_base64(fig: Any) -> str:
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', bbox_inches='tight')
+    plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0)
     buf.seek(0)
     image = base64.b64encode(buf.getvalue()).decode('utf-8')
     plt.close(fig)

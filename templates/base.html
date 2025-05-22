@@ -9,10 +9,46 @@
             href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
             rel="stylesheet"
         />
+        <!-- Font Awesome for icons -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        />
+        <style>
+            .hover-zoom {
+                transition: transform 0.3s ease;
+            }
+            .hover-zoom:hover {
+                transform: scale(1.05);
+            }
+
+            .content-container {
+                background-color: white;
+                border-radius: 15px;
+            }
+
+            .animated-bg {
+                background: linear-gradient(-45deg, #0047ab, #ffffff, #0047ab, #ffffff);
+                background-size: 400% 400%;
+                animation: gradient 15s ease infinite;
+            }
+
+            @keyframes gradient {
+                0% {
+                    background-position: 0% 50%;
+                }
+                50% {
+                    background-position: 100% 50%;
+                }
+                100% {
+                    background-position: 0% 50%;
+                }
+            }
+        </style>
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Assistenz-Montage</a>
+            <a class="navbar-brand" href="#">ASYS-MONTAGE</a>
             <button
                 class="navbar-toggler"
                 type="button"
@@ -25,14 +61,59 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- Auto Acknowledge Checkboxes in the middle -->
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item mr-3">
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="voiceAcknowledge"
+                                {%
+                                if
+                                voice_acknowledge
+                                %}checked{%
+                                endif
+                                %}
+                            />
+                            <label
+                                class="form-check-label"
+                                for="voiceAcknowledge"
+                            >
+                                Auto Acknowledge mit Voice
+                            </label>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="gestureAcknowledge"
+                                {%
+                                if
+                                gesture_acknowledge
+                                %}checked{%
+                                endif
+                                %}
+                            />
+                            <label
+                                class="form-check-label"
+                                for="gestureAcknowledge"
+                            >
+                                Auto Acknowledge mit Gestures
+                            </label>
+                        </div>
+                    </li>
+                </ul>
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
                         <form
                             method="post"
                             action="{{ url_for('blueprint.log_off') }}"
                         >
-                            <button type="submit" class="btn btn-danger">
-                                Log Out
+                            <button type="submit" class="btn btn-danger hover-zoom">
+                                <i class="fas fa-sign-out-alt me-2"></i> Log Out
                             </button>
                         </form>
                     </li>
@@ -41,14 +122,16 @@
                             method="post"
                             action="{{ url_for('blueprint.log_in') }}"
                         >
-                            <button type="submit" class="btn btn-primary">
-                                Log In
+                            <button type="submit" class="btn btn-primary hover-zoom">
+                                <i class="fas fa-sign-in-alt me-2"></i> Log In
                             </button>
                         </form>
                     </li>
                 </ul>
             </div>
         </nav>
+
+        <div class="animated-bg position-fixed w-100 h-100" style="top: 0; left: 0; z-index: -1"></div>
 
         <div class="container-fluid">
             {% if warning %}

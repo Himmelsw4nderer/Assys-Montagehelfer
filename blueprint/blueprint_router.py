@@ -87,7 +87,11 @@ def register_control_routes(blueprint: Blueprint) -> None:
         return render_template('control.html', image_front=image_front, image_right=image_right, image_back=image_back, image_left=image_left , step=len(steps)+1, max_steps=len(steps), blueprint=blueprint_name)
 
 def register_auto_acknowledge_routes(blueprint: Blueprint):
-    state = {"auto_acknowledged": False}
+    state = {
+        "auto_acknowledged": False,
+        "auto_gesture_ack": False,
+        "auto_voice_ack": False
+    }
 
     @blueprint.route("/auto_acknowledge", methods=["GET"])
     def get_auto_acknowledge():
@@ -100,3 +104,9 @@ def register_auto_acknowledge_routes(blueprint: Blueprint):
     def set_auto_acknowledge():
         state["auto_acknowledged"] = True
         return {"auto_acknowledged": state["auto_acknowledged"]}
+
+    @blueprint.route("/settings/update", methods=["POST"])
+    def update_settings():
+        state["auto_gesture_ack"] = "autoGestureAck" in request.form
+        state["auto_voice_ack"] = "autoVoiceAck" in request.form
+        return redirect(url_for("index"))
