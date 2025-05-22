@@ -1,62 +1,78 @@
 {% extends "base.html" %} {% block title %} Blueprint {% endblock %} {% block
 content %}
 <h1>Please Control the object from all Sides</h1>
-<div class="d-flex flex-column">
-    <div class="d-flex justify-content-center mb-3">
-        <div class="text-center me-3">
-            <h5>Front View</h5>
-            <image
-                src="data:image/png;base64,{{ image_front }}"
-                class="image-fluid"
-            />
-        </div>
-        <div class="text-center">
-            <h5>Back View</h5>
-            <image
-                src="data:image/png;base64,{{ image_back }}"
-                class="image-fluid"
-            />
-        </div>
-    </div>
-    <div class="d-flex justify-content-center">
-        <div class="text-center me-3">
-            <h5>Left View</h5>
-            <image
-                src="data:image/png;base64,{{ image_left }}"
-                class="image-fluid"
-            />
-        </div>
-        <div class="text-center">
-            <h5>Right View</h5>
-            <image
-                src="data:image/png;base64,{{ image_right }}"
-                class="image-fluid"
-            />
-        </div>
-    </div>
-</div>
-<p>Blueprint {{ blueprint }} with {{ max_steps }} Steps</p>
-<form id="controlForm" method="post" action="{{ url_for('blueprint.control_post') }}">
-    <input type="hidden" name="step" value="{{ step }}" />
+
+<form
+    id="controlForm"
+    method="post"
+    action="{{ url_for('blueprint.control_post') }}"
+>
+    <input type="hidden" name="</form>step" value="{{ step }}" />
     <input type="hidden" name="blueprint" value="{{ blueprint }}" />
-    <div class="d-flex justify-content-between mt-3">
+
+    <div class="d-flex align-items-center">
         <button
             type="submit"
             name="direction"
             value="back"
-            class="btn btn-secondary"
+            class="btn btn-secondary py-2 px-4 fs-5 nexttoimage"
+            style="height: 100%; width: 450px"
         >
             Back
         </button>
+
+        <div class="d-flex flex-column">
+            <div class="d-flex justify-content-center mb-3">
+                <div class="text-center me-3">
+                    <h5>Front View</h5>
+                    <image
+                        src="data:image/png;base64,{{ image_front }}"
+                        class="image-fluid"
+                        id="frontImage"
+                    />
+                </div>
+                <div class="text-center">
+                    <h5>Back View</h5>
+                    <image
+                        src="data:image/png;base64,{{ image_back }}"
+                        class="image-fluid"
+                        id="backImage"
+                    />
+                </div>
+            </div>
+            <div class="d-flex justify-content-center">
+                <div class="text-center me-3">
+                    <h5>Left View</h5>
+                    <image
+                        src="data:image/png;base64,{{ image_left }}"
+                        class="image-fluid"
+                        id="leftImage"
+                    />
+                </div>
+                <div class="text-center">
+                    <h5>Right View</h5>
+                    <image
+                        src="data:image/png;base64,{{ image_right }}"
+                        class="image-fluid"
+                        id="rightImage"
+                    />
+                </div>
+            </div>
+        </div>
+
         <button
             type="submit"
             name="direction"
-            value="finish"
-            class="btn btn-success"
+            value="next"
+            class="btn btn-success py-2 px-4 fs-5 nexttoimage"
+            style="height: 100%; width: 450px"
         >
             Finish
         </button>
+    </>
     </div>
+
+    <p>Step: {{ step }} of {{ max_steps }} in Blueprint {{ blueprint }}</p>
 </form>
 
 <script>
@@ -80,7 +96,19 @@ content %}
                 console.error("Error checking auto acknowledge:", error),
             );
     }
+    // Adjust button height to match image
+    function adjustButtonHeight() {
+        const imageHeight =
+            document.getElementById("frontImage").clientHeight;
+        const buttons = document.querySelectorAll(".btn.nexttoimage");
+        buttons.forEach((button) => {
+            button.style.height = imageHeight*2 + "px";
+        });
+    }
 
+    // Call once when loaded and on window resize
+    window.addEventListener("load", adjustButtonHeight);
+    window.addEventListener("resize", adjustButtonHeight);
     // Check every second
     setInterval(checkAutoAcknowledge, 500);
 </script>
