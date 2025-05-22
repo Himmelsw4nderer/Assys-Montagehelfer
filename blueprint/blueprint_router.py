@@ -1,7 +1,14 @@
-from flask import Blueprint, render_template, redirect, url_for, request
+from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 from blueprint.render import render_blueprint, render_control_views
 from blueprint.loader import select_random_blueprint, load_blueprint
 from pick_by_light.pick_by_light_controller import PickByLightController
+
+# Global state to ensure accessibility across all route functions
+state = {
+    "auto_acknowledged": False,
+    "auto_gesture_ack": False,
+    "auto_voice_ack": False
+}
 
 def create_blueprint(pick_by_light_controller: PickByLightController) -> Blueprint:
     blueprint = Blueprint('blueprint', __name__)
@@ -54,12 +61,21 @@ def register_blueprint_routes(blueprint: Blueprint, pick_by_light_controller: Pi
 
         if location is None:
             warning = "No block found in the storage"
-            return render_template('blueprint.html', image=image, step=step, max_steps=max_steps, blueprint=blueprint_name, warning=warning)
+            return render_template('blueprint.html',
+                                  image=image,
+                                  step=step,
+                                  max_steps=max_steps,
+                                  blueprint=blueprint_name,
+                                  warning=warning)
         else:
             pick_by_light_controller.show_block(location)
             pick_by_light_controller.remove_block(location)
 
-        return render_template('blueprint.html', image=image, step=step, max_steps=max_steps, blueprint=blueprint_name)
+        return render_template('blueprint.html',
+                              image=image,
+                              step=step,
+                              max_steps=max_steps,
+                              blueprint=blueprint_name)
 
 def register_control_routes(blueprint: Blueprint) -> None:
     @blueprint.route('/control', methods=['POST'])
@@ -84,15 +100,16 @@ def register_control_routes(blueprint: Blueprint) -> None:
 
         steps = load_blueprint(blueprint_name)
         image_front, image_back, image_right, image_left = render_control_views(steps)
-        return render_template('control.html', image_front=image_front, image_right=image_right, image_back=image_back, image_left=image_left , step=len(steps)+1, max_steps=len(steps), blueprint=blueprint_name)
+        return render_template('control.html',
+                              image_front=image_front,
+                              image_right=image_right,
+                              image_back=image_back,
+                              image_left=image_left,
+                              step=len(steps)+1,
+                              max_steps=len(steps),
+                              blueprint=blueprint_name)
 
 def register_auto_acknowledge_routes(blueprint: Blueprint):
-    state = {
-        "auto_acknowledged": False,
-        "auto_gesture_ack": False,
-        "auto_voice_ack": False
-    }
-
     @blueprint.route("/auto_acknowledge", methods=["GET"])
     def get_auto_acknowledge():
         if state["auto_acknowledged"] == False:
@@ -102,7 +119,16 @@ def register_auto_acknowledge_routes(blueprint: Blueprint):
 
     @blueprint.route("/auto_acknowledge", methods=["POST"])
     def set_auto_acknowledge():
-        state["auto_acknowledged"] = True
+        data = request.get_json() or {}
+        ack_type = data.get("type")
+
+        if ack_type == "voice" and state["auto_voice_ack"]:
+            state["auto_acknowledged"] = True
+        elif ack_type == "gesture" and state["auto_gesture_ack"]:
+            state["auto_acknowledged"] = True
+        elif not ack_type:
+            state["auto_acknowledged"] = False
+
         return {"auto_acknowledged": state["auto_acknowledged"]}
 
     @blueprint.route("/settings/update", methods=["POST"])
@@ -110,3 +136,10 @@ def register_auto_acknowledge_routes(blueprint: Blueprint):
         state["auto_gesture_ack"] = "autoGestureAck" in request.form
         state["auto_voice_ack"] = "autoVoiceAck" in request.form
         return redirect(url_for("index"))
+
+    @blueprint.route("/settings/current", methods=["GET"])
+    def get_current_settings():
+        return jsonify({
+            "auto_gesture_ack": state["auto_gesture_ack"],
+            "auto_voice_ack": state["auto_voice_ack"],
+        })

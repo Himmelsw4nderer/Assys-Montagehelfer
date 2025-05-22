@@ -89,6 +89,17 @@
                 margin-right: 10px;
                 border-radius: 50%;
             }
+
+            /* Added styles for center alignment of checkboxes */
+            .checkbox-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 100;
+            }
         </style>
     </head>
     <body>
@@ -105,52 +116,40 @@
             >
                 <span class="navbar-toggler-icon"></span>
             </button>
+
+            <!-- Auto Acknowledge Checkboxes in the exact middle -->
+            <div class="checkbox-container">
+                <div class="form-check mr-3">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="voiceAcknowledge"
+                        disabled
+                    />
+                    <label
+                        class="form-check-label"
+                        for="voiceAcknowledge"
+                    >
+                        Auto Acknowledge mit Voice
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="gestureAcknowledge"
+                        disabled
+                    />
+                    <label
+                        class="form-check-label"
+                        for="gestureAcknowledge"
+                    >
+                        Auto Acknowledge mit Gestures
+                    </label>
+                </div>
+            </div>
+
             <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- Auto Acknowledge Checkboxes in the middle -->
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item mr-3">
-                        <div class="form-check">
-                            <input
-                                class="form-check-input"
-                                type="checkbox"
-                                id="voiceAcknowledge"
-                                {%
-                                if
-                                voice_acknowledge
-                                %}checked{%
-                                endif
-                                %}
-                            />
-                            <label
-                                class="form-check-label"
-                                for="voiceAcknowledge"
-                            >
-                                Auto Acknowledge mit Voice
-                            </label>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <div class="form-check">
-                            <input
-                                class="form-check-input"
-                                type="checkbox"
-                                id="gestureAcknowledge"
-                                {%
-                                if
-                                gesture_acknowledge
-                                %}checked{%
-                                endif
-                                %}
-                            />
-                            <label
-                                class="form-check-label"
-                                for="gestureAcknowledge"
-                            >
-                                Auto Acknowledge mit Gestures
-                            </label>
-                        </div>
-                    </li>
-                </ul>
                 <ul class="navbar-nav ml-auto">
                     <!-- Dark mode toggle button -->
                     <li class="nav-item">
@@ -210,7 +209,7 @@
         </div>
 
         <!-- Bootstrap JS and dependencies -->
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
@@ -248,6 +247,29 @@
                         themeIcon.classList.add('fa-moon');
                     }
                 }
+
+                // Fetch current settings asynchronously
+                async function fetchCurrentSettings() {
+                    try {
+                        const response = await fetch('/settings/current');
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch settings');
+                        }
+                        const data = await response.json();
+
+                        // Update checkboxes with the fetched settings
+                        document.getElementById('voiceAcknowledge').checked = data.auto_voice_ack;
+                        document.getElementById('gestureAcknowledge').checked = data.auto_gesture_ack;
+                    } catch (error) {
+                        console.error('Error fetching settings:', error);
+                    }
+                }
+
+                // Call the function to fetch settings when the page loads
+                fetchCurrentSettings();
+
+                // Optionally, periodically refresh settings
+                setInterval(fetchCurrentSettings, 30000); // Refresh every 30 seconds
             });
         </script>
     </body>
