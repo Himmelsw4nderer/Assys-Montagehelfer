@@ -1,13 +1,77 @@
 {% extends "base.html" %} {% block title %} Home {% endblock %} {% block content
 %}
-<div class="container mt-5">
-    <h1>Asys-Montage</h1>
-    <form method="post" , action="{{ url_for('blueprint.log_in') }}">
-        <button type="submit" class="btn btn-primary mt-3">Log In</button>
-    </form>
-    <a href="{{ url_for('pick_by_light.brick_storage') }}" class="btn btn-secondary mt-3">Brick Storage Management</a>
-    <form method="post" action="{{ url_for('blueprint.set_auto_acknowledge') }}">
-        <button type="submit" class="btn btn-success mt-3">Enable Auto Acknowledge</button>
-    </form>
+<div
+    class="animated-bg position-fixed w-100 h-100"
+    style="top: 0; left: 0; z-index: -1"
+></div>
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <div class="content-container p-4 rounded border shadow-lg">
+                    <h1 class="display-3 mb-4 fw-bold">ASYS-MONTAGE</h1>
+                    <div class="p-4 rounded">
+                        <div
+                            class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-5"
+                        >
+                            <form
+                                method="post"
+                                action="{{ url_for('blueprint.log_in') }}"
+                                class="m-2"
+                            >
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary btn-lg px-5 py-3 fw-bold hover-zoom"
+                                    style="width: 100%"
+                                >
+                                    <i class="fas fa-sign-in-alt me-2"></i>
+                                    Getting Started
+                                </button>
+                            </form>
+                            <a
+                                href="{{ url_for('pick_by_light.brick_storage') }}"
+                                class="btn btn-secondary btn-lg px-4 py-3 m-2 fw-bold hover-zoom"
+                            >
+                                <i class="fas fa-box-open me-2"></i> Brick
+                                Storage Management
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .hover-zoom {
+        transition: transform 0.3s ease;
+    }
+    .hover-zoom:hover {
+        transform: scale(1.05);
+    }
+
+    .content-container {
+        background-color: white;
+        border-radius: 15px;
+    }
+
+    .animated-bg {
+        background: linear-gradient(-45deg, #0047ab, #ffffff, #0047ab, #ffffff);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
+    }
+
+    @keyframes gradient {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+</style>
 {% endblock %}

@@ -11,15 +11,26 @@ content %}
     <input type="hidden" name="blueprint" value="{{ blueprint }}" />
 
     <div class="d-flex align-items-center">
-        <button
-            type="submit"
-            name="direction"
-            value="back"
-            class="btn btn-secondary py-2 px-4 fs-5 nexttoimage"
-            style="height: 100%; width: 450px"
-        >
-            Back
-        </button>
+        <div class="d-flex flex-column" style="width: 600px">
+            <button
+                type="submit"
+                name="direction"
+                value="to_last_step"
+                class="btn btn-secondary py-3 px-4 fs-3 nexttoimage mb-2"
+                style="width: 100%"
+            >
+                Back
+            </button>
+            <button
+                type="submit"
+                name="direction"
+                value="to_first_step"
+                class="btn btn-warning py-3 px-4 fs-3 nexttoimage"
+                style="width: 100%"
+            >
+                Back to start
+            </button>
+        </div>
 
         <div class="d-flex flex-column">
             <div class="d-flex justify-content-center mb-3">
@@ -60,19 +71,25 @@ content %}
             </div>
         </div>
 
-        <button
-            type="submit"
-            name="direction"
-            value="next"
-            class="btn btn-success py-2 px-4 fs-5 nexttoimage"
-            style="height: 100%; width: 450px"
-        >
-            Finish
-        </button>
-    </>
+        <div class="d-flex flex-column" style="width: 600px">
+            <button
+                type="submit"
+                name="direction"
+                value="next"
+                class="btn btn-success py-3 px-4 fs-3 nexttoimage mb-2"
+                style="width: 100%"
+            >
+                Next Assembly
+            </button>
+            <a
+                href="{{ url_for('blueprint.log_off') }}"
+                class="btn btn-danger py-3 px-4 fs-3 nexttoimage"
+                style="width: 100%"
+            >
+                Log Out
+            </a>
+        </div>
     </div>
-
-    <p>Step: {{ step }} of {{ max_steps }} in Blueprint {{ blueprint }}</p>
 </form>
 
 <script>
@@ -98,11 +115,10 @@ content %}
     }
     // Adjust button height to match image
     function adjustButtonHeight() {
-        const imageHeight =
-            document.getElementById("frontImage").clientHeight;
+        const imageHeight = document.getElementById("frontImage").clientHeight;
         const buttons = document.querySelectorAll(".btn.nexttoimage");
         buttons.forEach((button) => {
-            button.style.height = imageHeight*2 + "px";
+            button.style.height = imageHeight + "px";
         });
     }
 

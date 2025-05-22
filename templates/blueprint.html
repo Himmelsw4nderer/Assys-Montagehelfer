@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block title %} Blueprint {% endblock %} {% block
 content %}
-<h1>Add the highlighted Brick</h1>
+<h1>Add the highlighted Brick - Step {{ step }} of {{ max_steps }}</h1>
 
 <form
     id="blueprintForm"
@@ -41,8 +41,6 @@ content %}
     </div>
 </form>
 
-<p>Step: {{ step }} of {{ max_steps }} in Blueprint {{ blueprint }}</p>
-
 <script>
     // Poll the auto_acknowledge endpoint every second
     function checkAutoAcknowledge() {
@@ -71,7 +69,7 @@ content %}
             document.getElementById("blueprintImage").clientHeight;
         const buttons = document.querySelectorAll(".btn.nexttoimage");
         buttons.forEach((button) => {
-            button.style.height = imageHeight*0.8 + "px";
+            button.style.height = imageHeight * 0.8 + "px";
         });
     }
 
