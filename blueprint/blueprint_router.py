@@ -7,7 +7,8 @@ from pick_by_light.pick_by_light_controller import PickByLightController
 state = {
     "auto_acknowledged": False,
     "auto_gesture_ack": False,
-    "auto_voice_ack": False
+    "auto_voice_ack": False,
+    "auto_direction": "next"
 }
 
 def create_blueprint(pick_by_light_controller: PickByLightController) -> Blueprint:
@@ -113,23 +114,37 @@ def register_auto_acknowledge_routes(blueprint: Blueprint):
     @blueprint.route("/auto_acknowledge", methods=["GET"])
     def get_auto_acknowledge():
         if state["auto_acknowledged"] == False:
-            return {"auto_acknowledged": False}
+            return {"auto_acknowledged": False, "direction": "next"}
+        
+        direction = state.get("auto_direction", "next")
         state["auto_acknowledged"] = False
-        return {"auto_acknowledged": True}
+        state["auto_direction"] = "next"
+        
+        return {
+            "auto_acknowledged": True,
+            "direction": direction
+        }
 
     @blueprint.route("/auto_acknowledge", methods=["POST"])
     def set_auto_acknowledge():
         data = request.get_json() or {}
         ack_type = data.get("type")
+        direction = data.get("direction", "next")
 
         if ack_type == "voice" and state["auto_voice_ack"]:
             state["auto_acknowledged"] = True
+            state["auto_direction"] = direction
         elif ack_type == "gesture" and state["auto_gesture_ack"]:
             state["auto_acknowledged"] = True
+            state["auto_direction"] = "next"  # Gesture always goes next for now
         elif not ack_type:
             state["auto_acknowledged"] = False
+            state["auto_direction"] = "next"
 
-        return {"auto_acknowledged": state["auto_acknowledged"]}
+        return {
+            "auto_acknowledged": state["auto_acknowledged"],
+            "direction": state.get("auto_direction", "next")
+        }
 
     @blueprint.route("/settings/update", methods=["POST"])
     def update_settings():

@@ -52,12 +52,12 @@ content %}
             .then((response) => response.json())
             .then((data) => {
                 if (data.auto_acknowledged === true) {
-                    // If auto_acknowledged is true, submit the form with "next" direction
+                    // Use the direction from the response (next or back)
                     const form = document.getElementById("blueprintForm");
                     const input = document.createElement("input");
                     input.type = "hidden";
                     input.name = "direction";
-                    input.value = "next";
+                    input.value = data.direction || "next";
                     form.appendChild(input);
                     form.submit();
                 }

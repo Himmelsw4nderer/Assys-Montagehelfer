@@ -1,6 +1,6 @@
 # Keyword-Based Auto-Acknowledgment for Assys-Montagehelfer
 
-This extension adds voice control to the Assys-Montagehelfer system, allowing you to navigate through assembly steps using specific keyword commands.
+This extension adds voice control to the Assys-Montagehelfer system, allowing you to navigate through assembly steps using specific keyword commands. You can move both forward and backward through the assembly process.
 
 ## Features
 
@@ -28,13 +28,21 @@ This extension adds voice control to the Assys-Montagehelfer system, allowing yo
    ```
 
 4. Begin your assembly process in the web application
-5. When you want to move to the next step, say one of the wake words:
+5. When you want to move to the next step, say one of the forward navigation words:
    - "next"
    - "weiter"
    - "continue"
    - "nächste"
    - "fertig"
    - "ok"
+
+6. When you want to go back to the previous step, say one of the backward navigation words:
+   - "back"
+   - "zurück"
+   - "previous"
+   - "vorherige"
+   - "rückgängig"
+   - "undo"
 
 ## Configuration
 
@@ -60,9 +68,14 @@ You can customize the keyword recognition behavior using environment variables:
   export SPEECH_COOLDOWN=1.5
   ```
 
-- `SPEECH_WAKE_WORDS`: Comma-separated list of custom wake words
+- `SPEECH_NEXT_WORDS`: Comma-separated list of custom forward navigation words
   ```
-  export SPEECH_WAKE_WORDS="next,proceed,advance,forward"
+  export SPEECH_NEXT_WORDS="next,proceed,advance,forward"
+  ```
+
+- `SPEECH_BACK_WORDS`: Comma-separated list of custom backward navigation words
+  ```
+  export SPEECH_BACK_WORDS="back,previous,return,undo"
   ```
 
 ## Troubleshooting
@@ -82,7 +95,7 @@ You can customize the keyword recognition behavior using environment variables:
 
 ## Technical Details
 
-The keyword recognition runs as a separate process from the main application. When it detects a wake word, it sends an HTTP request to the `/auto_acknowledge` endpoint of the Assys-Montagehelfer server, which then automatically advances to the next step, just as if the user had clicked the "Next Step" button.
+The keyword recognition runs as a separate process from the main application. When it detects a navigation word, it sends an HTTP request to the `/auto_acknowledge` endpoint of the Assys-Montagehelfer server with the appropriate direction (forward or backward), which then automatically navigates to the next or previous step, just as if the user had clicked the corresponding button.
 
 ## Comparison with Camera-Based Auto-Acknowledgment
 
