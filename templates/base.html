@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,38 +15,18 @@
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
         />
         <style>
-            :root {
-                /* Light theme (default) */
-                --bg-color: #ffffff;
-                --text-color: #212529;
-                --navbar-bg: #f8f9fa;
-                --container-bg: #ffffff;
-                --gradient-color-1: #0047ab;
-                --gradient-color-2: #ffffff;
-            }
-
-            [data-theme="dark"] {
-                /* Dark theme */
-                --bg-color: #121212;
-                --text-color: #e0e0e0;
-                --navbar-bg: #333333;
-                --container-bg: #2a2a2a;
-                --gradient-color-1: #002855;
-                --gradient-color-2: #121212;
-            }
-
             body {
-                color: var(--text-color);
-                background-color: var(--bg-color);
+                color: #212529;
+                background-color: #ffffff;
             }
 
             .navbar {
-                background-color: var(--navbar-bg) !important;
+                background-color: #f8f9fa !important;
             }
 
             .navbar-light .navbar-brand,
             .navbar-light .navbar-nav .nav-link {
-                color: var(--text-color);
+                color: #212529;
             }
 
             .hover-zoom {
@@ -57,41 +37,12 @@
             }
 
             .content-container {
-                background-color: var(--container-bg);
+                background-color: #ffffff;
                 border-radius: 15px;
             }
 
-            .animated-bg {
-                background: linear-gradient(-45deg, var(--gradient-color-1), var(--gradient-color-2), var(--gradient-color-1), var(--gradient-color-2));
-                background-size: 400% 400%;
-                animation: gradient 15s ease infinite;
-            }
-
-            @keyframes gradient {
-                0% {
-                    background-position: 0% 50%;
-                }
-                50% {
-                    background-position: 100% 50%;
-                }
-                100% {
-                    background-position: 0% 50%;
-                }
-            }
-
-            .theme-toggle-btn {
-                background: none;
-                border: none;
-                cursor: pointer;
-                font-size: 1.2rem;
-                color: var(--text-color);
-                padding: 0.25rem 0.5rem;
-                margin-right: 10px;
-                border-radius: 50%;
-            }
-
-            /* Added styles for center alignment of checkboxes */
-            .checkbox-container {
+            /* Status indicators container */
+            .status-container {
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -99,6 +50,63 @@
                 left: 50%;
                 transform: translateX(-50%);
                 z-index: 100;
+                gap: 20px;
+            }
+
+            /* Status indicator styles */
+            .status-indicator {
+                display: flex;
+                align-items: center;
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 25px;
+                padding: 8px 16px;
+                border: 2px solid #e9ecef;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                transition: all 0.3s ease;
+            }
+
+            .status-indicator.active {
+                border-color: #28a745;
+                background: rgba(40, 167, 69, 0.1);
+                box-shadow: 0 2px 12px rgba(40, 167, 69, 0.3);
+            }
+
+            .status-indicator.inactive {
+                border-color: #dc3545;
+                background: rgba(220, 53, 69, 0.1);
+                box-shadow: 0 2px 12px rgba(220, 53, 69, 0.3);
+            }
+
+            .status-icon {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                margin-right: 8px;
+                transition: all 0.3s ease;
+            }
+
+            .status-icon.active {
+                background: #28a745;
+                box-shadow: 0 0 8px rgba(40, 167, 69, 0.6);
+            }
+
+            .status-icon.inactive {
+                background: #dc3545;
+                box-shadow: 0 0 8px rgba(220, 53, 69, 0.6);
+            }
+
+            .status-text {
+                font-size: 14px;
+                font-weight: 500;
+                margin: 0;
+            }
+
+            .status-indicator.active .status-text {
+                color: #155724;
+            }
+
+            .status-indicator.inactive .status-text {
+                color: #721c24;
             }
         </style>
     </head>
@@ -117,71 +125,29 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <!-- Auto Acknowledge Checkboxes in the exact middle -->
-            <div class="checkbox-container">
-                <div class="form-check mr-3">
-                    <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="voiceAcknowledge"
-                        disabled
-                    />
-                    <label
-                        class="form-check-label"
-                        for="voiceAcknowledge"
-                    >
-                        Auto Acknowledge mit Voice
-                    </label>
+            <!-- Status indicators in the exact middle -->
+            <div class="status-container">
+                <div class="status-indicator" id="voiceStatus">
+                    <div class="status-icon" id="voiceIcon"></div>
+                    <span class="status-text">
+                        <i class="fas fa-microphone mr-1"></i>Voice Recognition
+                    </span>
                 </div>
-                <div class="form-check">
-                    <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="gestureAcknowledge"
-                        disabled
-                    />
-                    <label
-                        class="form-check-label"
-                        for="gestureAcknowledge"
-                    >
-                        Auto Acknowledge mit Gestures
-                    </label>
+                <div class="status-indicator" id="gestureStatus">
+                    <div class="status-icon" id="gestureIcon"></div>
+                    <span class="status-text">
+                        <i class="fas fa-camera mr-1"></i>Camera Recognition
+                    </span>
                 </div>
             </div>
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
-                    <!-- Dark mode toggle button -->
-                    <li class="nav-item">
-                        <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Dark/Light Mode">
-                            <i class="fas fa-moon"></i>
-                        </button>
-                    </li>
-                    <li class="nav-item">
-                        <form
-                            method="post"
-                            action="{{ url_for('blueprint.log_off') }}"
-                        >
-                            <button type="submit" class="btn btn-danger hover-zoom">
-                                <i class="fas fa-sign-out-alt me-2"></i> Log Out
-                            </button>
-                        </form>
-                    </li>
-                    <li class="nav-item ml-2">
-                        <form
-                            method="post"
-                            action="{{ url_for('blueprint.log_in') }}"
-                        >
-                            <button type="submit" class="btn btn-primary hover-zoom">
-                                <i class="fas fa-sign-in-alt me-2"></i> Log In
-                            </button>
-                        </form>
-                    </li>
+                    {% block navbar_actions %}
+                    {% endblock %}
                 </ul>
             </div>
         </nav>
-
-        <div class="animated-bg position-fixed w-100 h-100" style="top: 0; left: 0; z-index: -1"></div>
 
         <div class="container-fluid">
             {% if warning %}
@@ -213,41 +179,8 @@
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-        <!-- Dark mode toggle script -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const themeToggleBtn = document.getElementById('theme-toggle');
-                const themeIcon = themeToggleBtn.querySelector('i');
-
-                // Check for saved theme preference or use default
-                const currentTheme = localStorage.getItem('theme') || 'light';
-                document.documentElement.setAttribute('data-theme', currentTheme);
-
-                // Update button icon based on current theme
-                updateThemeIcon(currentTheme);
-
-                // Toggle theme on button click
-                themeToggleBtn.addEventListener('click', function() {
-                    const currentTheme = document.documentElement.getAttribute('data-theme');
-                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-
-                    document.documentElement.setAttribute('data-theme', newTheme);
-                    localStorage.setItem('theme', newTheme);
-
-                    updateThemeIcon(newTheme);
-                });
-
-                // Helper function to update the icon
-                function updateThemeIcon(theme) {
-                    if (theme === 'dark') {
-                        themeIcon.classList.remove('fa-moon');
-                        themeIcon.classList.add('fa-sun');
-                    } else {
-                        themeIcon.classList.remove('fa-sun');
-                        themeIcon.classList.add('fa-moon');
-                    }
-                }
-
                 // Fetch current settings asynchronously
                 async function fetchCurrentSettings() {
                     try {
@@ -257,11 +190,28 @@
                         }
                         const data = await response.json();
 
-                        // Update checkboxes with the fetched settings
-                        document.getElementById('voiceAcknowledge').checked = data.auto_voice_ack;
-                        document.getElementById('gestureAcknowledge').checked = data.auto_gesture_ack;
+                        // Update status indicators with the fetched settings
+                        updateStatusIndicator('voiceStatus', 'voiceIcon', data.auto_voice_ack);
+                        updateStatusIndicator('gestureStatus', 'gestureIcon', data.auto_gesture_ack);
                     } catch (error) {
                         console.error('Error fetching settings:', error);
+                    }
+                }
+
+                function updateStatusIndicator(statusId, iconId, isActive) {
+                    const statusElement = document.getElementById(statusId);
+                    const iconElement = document.getElementById(iconId);
+
+                    if (isActive) {
+                        statusElement.classList.remove('inactive');
+                        statusElement.classList.add('active');
+                        iconElement.classList.remove('inactive');
+                        iconElement.classList.add('active');
+                    } else {
+                        statusElement.classList.remove('active');
+                        statusElement.classList.add('inactive');
+                        iconElement.classList.remove('active');
+                        iconElement.classList.add('inactive');
                     }
                 }
 

@@ -1,5 +1,15 @@
-{% extends "base.html" %} {% block title %} Blueprint {% endblock %} {% block
-content %}
+{% extends "base.html" %} {% block title %} Blueprint {% endblock %}
+{% block navbar_actions %}
+<li class="nav-item">
+    <form method="post" action="{{ url_for('index') }}">
+        <button type="submit" class="btn btn-danger hover-zoom">
+            <i class="fas fa-sign-out-alt me-2"></i> Log Out
+        </button>
+    </form>
+</li>
+{% endblock %}
+{% block content %}
+</edits>
 <form
     id="controlForm"
     method="post"
@@ -90,7 +100,7 @@ content %}
                     <h2>Next Assembly</h2>
                 </button>
                 <a
-                    href="{{ url_for('blueprint.log_off') }}"
+                    href="{{ url_for('index') }}"
                     class="btn btn-danger py-3 px-4 fs-1 nexttoimage d-flex align-items-center justify-content-center"
                     style="width: 100%"
                 >
