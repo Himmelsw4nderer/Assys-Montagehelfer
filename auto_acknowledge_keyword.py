@@ -3,11 +3,10 @@ import requests
 import os
 import time
 import argparse
-from typing import List, Optional
-import sys
+from typing import Dict, List
 
 
-def send_acknowledge_request(url: str = None) -> bool:
+def send_acknowledge_request(url: str | None = None, direction: str = "next") -> bool:
     """Send HTTP POST request to acknowledge endpoint."""
     # Use default URL if none provided
     if url is None:
@@ -16,8 +15,9 @@ def send_acknowledge_request(url: str = None) -> bool:
         url = f"{server_url}/auto_acknowledge"
 
     try:
-        response = requests.post(url)
-        print(f"HTTP request sent. Response: {response.status_code}")
+        payload = {"type": "voice", "direction": direction}
+        response = requests.post(url, json=payload)
+        print(f"HTTP request sent with direction '{direction}'. Response: {response.status_code}")
         return True
     except Exception as e:
         print(f"Failed to send HTTP request: {e}")
@@ -44,10 +44,10 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def get_wake_words() -> List[str]:
-    """Return list of wake words that trigger acknowledgment."""
+def get_wake_words() -> Dict[str, List[str]]:
+    """Return dictionary of wake words that trigger acknowledgment."""
     # Default wake words in German and English
-    wake_words = [
+    next_words = [
         "next",
         "weiter",
         "continue",
@@ -56,10 +56,28 @@ def get_wake_words() -> List[str]:
         "ok"
     ]
     
+    back_words = [
+        "back",
+        "zurück",
+        "previous",
+        "vorherige",
+        "rückgängig",
+        "undo"
+    ]
+    
+    wake_words = {
+        "next": next_words,
+        "back": back_words
+    }
+    
     # Allow customizing wake words through environment variable
-    custom_words = os.environ.get('SPEECH_WAKE_WORDS', '')
-    if custom_words:
-        wake_words.extend(custom_words.lower().split(','))
+    custom_next_words = os.environ.get('SPEECH_NEXT_WORDS', '')
+    if custom_next_words:
+        wake_words["next"].extend(custom_next_words.lower().split(','))
+        
+    custom_back_words = os.environ.get('SPEECH_BACK_WORDS', '')
+    if custom_back_words:
+        wake_words["back"].extend(custom_back_words.lower().split(','))
         
     return wake_words
 
@@ -80,9 +98,10 @@ def main() -> None:
     # Get wake words
     wake_words = get_wake_words()
     
-    print(f"Starting keyword recognition")
+    print("Starting keyword recognition")
     print(f"Using acknowledgment URL: {acknowledgment_url}")
-    print(f"Wake words: {', '.join(wake_words)}")
+    print(f"Next words: {', '.join(wake_words['next'])}")
+    print(f"Back words: {', '.join(wake_words['back'])}")
     print(f"Energy threshold: {recognizer.energy_threshold}")
     print(f"Pause threshold: {recognizer.pause_threshold}")
     print(f"Cooldown period: {args.cooldown} seconds")
@@ -103,12 +122,18 @@ def main() -> None:
                     print(f"Recognized: '{text}'")
                     
                     # Check if any wake word is in the recognized text
-                    if any(word in text for word in wake_words):
+                    direction = None
+                    if any(word in text for word in wake_words["next"]):
+                        direction = "next"
+                    elif any(word in text for word in wake_words["back"]):
+                        direction = "back"
+                    
+                    if direction:
                         # Check cooldown period
                         current_time = time.time()
                         if current_time - last_acknowledgment_time >= args.cooldown:
-                            print(f"Wake word detected. Sending acknowledgment...")
-                            if send_acknowledge_request(acknowledgment_url):
+                            print(f"Wake word detected for direction '{direction}'. Sending acknowledgment...")
+                            if send_acknowledge_request(acknowledgment_url, direction):
                                 last_acknowledgment_time = current_time
                         else:
                             cooldown_remaining = args.cooldown - (current_time - last_acknowledgment_time)

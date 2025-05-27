@@ -118,12 +118,21 @@
             .then((response) => response.json())
             .then((data) => {
                 if (data.auto_acknowledged === true) {
-                    // If auto_acknowledged is true, submit the form with "finish" direction
+                    // Use the direction from the response or default to "next"
                     const form = document.getElementById("controlForm");
                     const input = document.createElement("input");
                     input.type = "hidden";
                     input.name = "direction";
-                    input.value = "finish";
+                    
+                    // Map voice directions to control actions
+                    let direction = data.direction || "next";
+                    if (direction === "back") {
+                        direction = "to_last_step";
+                    } else {
+                        direction = "next";
+                    }
+                    
+                    input.value = direction;
                     form.appendChild(input);
                     form.submit();
                 }

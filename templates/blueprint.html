@@ -64,15 +64,14 @@
             .then((response) => response.json())
             .then((data) => {
                 if (data.auto_acknowledged === true) {
+
                     // Play ping sound when auto-acknowledged
                     document.getElementById('pingSound').play();
-
-                    // If auto_acknowledged is true, submit the form with "next" direction
                     const form = document.getElementById("blueprintForm");
                     const input = document.createElement("input");
                     input.type = "hidden";
                     input.name = "direction";
-                    input.value = "next";
+                    input.value = data.direction || "next";
                     form.appendChild(input);
                     form.submit();
                 }
@@ -91,7 +90,7 @@
             button.style.height = imageHeight * 1 + "px";
         });
     }
-
+Add auto-acknowledge polling to control form
     // Call once when loaded and on window resize
     window.addEventListener("load", adjustButtonHeight);
     window.addEventListener("resize", adjustButtonHeight);

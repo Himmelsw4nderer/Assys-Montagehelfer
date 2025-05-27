@@ -7,7 +7,8 @@
 # export SPEECH_ENERGY_THRESHOLD="3000"
 # export SPEECH_PAUSE_THRESHOLD="0.8"
 # export SPEECH_COOLDOWN="2.0"
-# export SPEECH_WAKE_WORDS="next,weiter,continue,nächste,fertig,ok"
+# export SPEECH_NEXT_WORDS="next,weiter,continue,nächste,fertig,ok"
+# export SPEECH_BACK_WORDS="back,zurück,previous,vorherige,rückgängig,undo"
 
 # Check if a virtual environment exists
 if [ ! -d ".venv" ]; then
@@ -39,7 +40,8 @@ echo "Starting keyword recognition service..."
 echo "Energy threshold: ${SPEECH_ENERGY_THRESHOLD:-3000}"
 echo "Pause threshold: ${SPEECH_PAUSE_THRESHOLD:-0.8}"
 echo "Cooldown period: ${SPEECH_COOLDOWN:-2.0}"
-echo "Wake words: ${SPEECH_WAKE_WORDS:-next,weiter,continue,nächste,fertig,ok}"
+echo "Next words: ${SPEECH_NEXT_WORDS:-next,weiter,continue,nächste,fertig,ok}"
+echo "Back words: ${SPEECH_BACK_WORDS:-back,zurück,previous,vorherige,rückgängig,undo}"
 
 # Change to script directory
 cd "$(dirname "$0")"
