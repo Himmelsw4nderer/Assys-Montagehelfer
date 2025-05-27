@@ -21,6 +21,7 @@ echo "Detecting hand gestures for automatic acknowledgment"
 echo ""
 echo "Server URL: $ASSYS_SERVER_URL"
 echo ""
+echo "Swipe gestures: Right->Left = Next, Left->Right = Back"
 echo "Press 'q' in the camera window or Ctrl+C to stop"
 echo "====================================================="
 
@@ -35,14 +36,16 @@ if [ "$REQUIREMENTS_OK" = false ]; then
     .venv/bin/pip install opencv-python mediapipe requests
 fi
 
-# Use camera device 2
-CAMERA_ARG="--camera 2"
-echo "Using camera device: 2"
+# Use camera device 0 by default
+CAMERA_ARG="--camera 0"
+echo "Using camera device: 0"
 
 # Start the camera recognition script
 cd "$(dirname "$0")"
 export ASSYS_SERVER_URL
-.venv/bin/python3 auto_acknowledge_camera.py $CAMERA_ARG
+
+# Pass any additional arguments from the command line
+.venv/bin/python3 auto_acknowledge_camera.py $CAMERA_ARG "$@"
 
 # Exit gracefully
 echo ""
