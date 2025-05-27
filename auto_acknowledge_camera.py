@@ -244,6 +244,7 @@ def main() -> None:
     swipe_detected = False
     swipe_cooldown = 0  # Cooldown timer to prevent multiple swipes
 
+
     # Draw some instructions on screen
     font = cv2.FONT_HERSHEY_SIMPLEX
     instruction_text = "Swipe left = Next | Swipe right = Back | Q = Quit"

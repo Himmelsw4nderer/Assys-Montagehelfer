@@ -1,5 +1,5 @@
-{% extends "base.html" %} {% block title %} Blueprint {% endblock %} 
-{% block navbar_actions %}
+{% extends "base.html" %} {% block title %} Blueprint {% endblock %} {% block
+navbar_actions %}
 <li class="nav-item">
     <form method="post" action="{{ url_for('blueprint.log_off') }}">
         <button type="submit" class="btn btn-danger hover-zoom">
@@ -7,11 +7,12 @@
         </button>
     </form>
 </li>
-{% endblock %}
-{% block content %}
+{% endblock %} {% block content %}
 <div class="card">
     <div class="card-body">
-        <h1 class="card-title">Add the highlighted Brick - Step {{ step }} of {{ max_steps }}</h1>
+        <h1 class="card-title">
+            Add the highlighted Brick - Step {{ step }} of {{ max_steps }}
+        </h1>
 
         <form
             id="blueprintForm"
@@ -26,7 +27,7 @@
                     name="direction"
                     value="back"
                     class="btn btn-secondary py-2 px-4 fs-5 nexttoimage"
-                    style="height: 100%; width: 450px"
+                    style="height: 100%; width: 450px; min-height: 300px"
                 >
                     <h2>Back</h2>
                 </button>
@@ -45,7 +46,7 @@
                     name="direction"
                     value="next"
                     class="btn btn-success py-2 px-4 fs-5 nexttoimage"
-                    style="height: 100%; width: 450px"
+                    style="height: 100%; width: 450px; min-height: 300px"
                 >
                     <h2>Next</h2>
                 </button>
@@ -53,6 +54,7 @@
         </form>
     </div>
 </div>
+
 
 <!-- Audio elements for acknowledge sounds -->
 <audio id="pingSound" src="{{ url_for('static', filename='ping.mp3') }}" preload="auto"></audio>
@@ -93,6 +95,10 @@
                     input.name = "direction";
                     input.value = data.direction || "next";
                     form.appendChild(input);
+                    console.log(
+                        "Submitting form with direction:",
+                        data.direction,
+                    );
                     form.submit();
                 } else if (data.auto_acknowledged === false) {
                     lastAcknowledged = false;
@@ -111,7 +117,9 @@
             document.getElementById("blueprintImage").clientHeight;
         const buttons = document.querySelectorAll(".btn.nexttoimage");
         buttons.forEach((button) => {
-            button.style.height = imageHeight * 1 + "px";
+            // Apply minimum height of 300px, or 120% of image height if larger
+            const calculatedHeight = Math.max(300, imageHeight * 0.9);
+            button.style.height = calculatedHeight + "px";
         });
     }
     // Call once when loaded and on window resize
