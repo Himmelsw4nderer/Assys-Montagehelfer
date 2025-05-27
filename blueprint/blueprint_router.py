@@ -114,16 +114,16 @@ def register_auto_acknowledge_routes(blueprint: Blueprint):
     @blueprint.route("/auto_acknowledge", methods=["GET"])
     def get_auto_acknowledge():
         if state["auto_acknowledged"] == False:
-            return {"auto_acknowledged": False, "direction": "next"}
+            return jsonify({"auto_acknowledged": False, "direction": "next"})
         
         direction = state.get("auto_direction", "next")
         state["auto_acknowledged"] = False
         state["auto_direction"] = "next"
         
-        return {
+        return jsonify({
             "auto_acknowledged": True,
             "direction": direction
-        }
+        })
 
     @blueprint.route("/auto_acknowledge", methods=["POST"])
     def set_auto_acknowledge():
@@ -141,10 +141,10 @@ def register_auto_acknowledge_routes(blueprint: Blueprint):
             state["auto_acknowledged"] = False
             state["auto_direction"] = "next"
 
-        return {
+        return jsonify({
             "auto_acknowledged": state["auto_acknowledged"],
             "direction": state.get("auto_direction", "next")
-        }
+        })
 
     @blueprint.route("/settings/update", methods=["POST"])
     def update_settings():

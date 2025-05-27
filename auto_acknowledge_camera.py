@@ -50,7 +50,8 @@ def send_acknowledge_request(url: str = None) -> bool:
         url = f"{server_url}/auto_acknowledge"
 
     try:
-        response = requests.post(url)
+        payload = {"type": "gesture", "direction": "next"}
+        response = requests.post(url, json=payload)
         print(f"HTTP request sent. Response: {response.status_code}")
         return True
     except Exception as e:
@@ -99,7 +100,6 @@ def main() -> None:
     http_request_sent = False
 
     # Get hand duration from arguments
-    args = parse_arguments()
     hand_duration = args.hand_duration
     acknowledgment_url = f"{args.server_url}{args.endpoint}"
 
@@ -120,6 +120,8 @@ def main() -> None:
             elif time.time() - hand_detected_start >= hand_duration and not http_request_sent:
                 print(f"Hand steady for {hand_duration} seconds. Sending acknowledgment...")
                 http_request_sent = send_acknowledge_request(acknowledgment_url)
+                # Reset timer to prevent immediate re-acknowledgment
+                hand_detected_start = time.time()
         else:
             if hand_detected_start is not None:
                 hand_detected_start = None
