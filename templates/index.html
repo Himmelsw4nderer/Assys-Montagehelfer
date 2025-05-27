@@ -1,5 +1,25 @@
-{% extends "base.html" %} {% block title %} Home {% endblock %} {% block content
+{% extends "base.html" %} {% block title %} Home {% endblock %}
+{% block nav_extra %}
+<li class="nav-item">
+    <span class="help-icon" id="help-trigger" title="Hilfe">?</span>
+</li>
+
+<!-- Popup -->
+<div id="help-popup" class="help-popup hidden">
+    <div class="help-content">
+        <span class="close-btn" id="close-help">&times;</span>
+        <h2>Hilfe - Hauptmenü</h2>
+        <p>
+            Sie befinden sich im Hauptmenü des Assistenzsystems zur Montage von Klemmbausteinen. Das Assistenzsystem kann per Gesten gesteuert werden (Bewegung der Hand zur Navigation zwischen den Montageschritten, mit einer Handbewegung im Sichtfeld der Kamera von rechts nach links kann zum nächsten Schritt navigiert werden, mit einer Handbewegung von links nach rechts zum vorherigen Schritt. Durch einen Ton wird der erfolgreiche Schrittwechsel bestätigt.<br>
+            Darüber hinaus kann die Navigation zwischen den Schritten auch per Sprache erfolgen. Mit dem Wort „Weiter“ kann zum nächsten Schritt und mit dem Wort „Zurück“ zum vorherigen Schritt navigiert werden. In den Einstellungen kann die Steuerung per Gesten und Sprache jeweils aktiviert oder deaktiviert werden. In der Mitte der oberen Navigationsleiste wird dauerhaft angezeigt, ob die Steuerung per Gesten oder Sprache aktiviert ist. Über den Knopf „Montage starten“ starten sie die Anleitungen zur Montage. Über den Knopf Teileverwaltung können in die Behälter gefüllte Klemmbausteine in das Assistenzsystem eingepflegt werden (nur für Berechtigte).
+        </p>
+    </div>
+</div>
+
+{% endblock %}
+{% block content
 %}
+
 <div
     class="animated-bg position-fixed w-100 h-100"
     style="top: 0; left: 0; z-index: -1"
@@ -103,4 +123,8 @@
         }
     }
 </style>
+
 {% endblock %}
+
+
+

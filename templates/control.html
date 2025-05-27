@@ -1,4 +1,23 @@
-{% extends "base.html" %} {% block title %} Blueprint {% endblock %} {% block
+{% extends "base.html" %} {% block title %} Blueprint {% endblock %} 
+{% block nav_extra %}
+<li class="nav-item">
+    <span class="help-icon" id="help-trigger" title="Hilfe">?</span>
+</li>
+
+<!-- Popup -->
+<div id="help-popup" class="help-popup hidden">
+    <div class="help-content">
+        <span class="close-btn" id="close-help">&times;</span>
+        <h2>Hilfe - Endkontrolle</h2>
+        <p>
+            Sie haben die Montageschritte eines Teils abgeschlossen. Kontrollieren Sie das Teil anhand der Bilder von allen Seiten. Ist bei der Montage ein Fehler aufgetreten können Sie über den Knopf „Zurück“ zum letzten Montageschritt zurückkehren. Alternativ können Sie das Teil zerlegen und über den Knopf „Zum ersten Schritt“ die Anleitung für das Teil erneut durchlaufen. Nutzen Sie dafür die bereits verwendeten Klemmbausteine.
+            Stimmt das Teil mit den Bildern überein, entfernen Sie dieses von der Montageplatte. Über den Knopf „Nächste Anleitung“ können Sie die Montage eines weiteren Teils beginnen. Über den Knopf „Hauptmenü“ können Sie zurück in das Hauptmenü gehen und die Montage beenden.
+        </p>
+    </div>
+</div>
+
+{% endblock %}
+{% block
 content %}
 <form
     id="controlForm"
@@ -19,7 +38,7 @@ content %}
                     class="btn btn-secondary py-3 px-4 fs-1 nexttoimage mb-2"
                     style="width: 100%"
                 >
-                    <h2>Back</h2>
+                    <h1>Zurück</h1>
                 </button>
                 <button
                     type="submit"
@@ -28,7 +47,7 @@ content %}
                     class="btn btn-warning py-3 px-4 fs-1 nexttoimage"
                     style="width: 100%"
                 >
-                    <h2>Back to start</h2>
+                    <h1>Zum ersten Schritt</h1>
                 </button>
             </div>
 
@@ -45,6 +64,19 @@ content %}
                             />
                         </div>
                         <div class="text-center">
+                            <h5>Right View</h5>
+                            <image
+                                src="data:image/png;base64,{{ image_right }}"
+                                class="image-fluid"
+                                id="rightImage"
+                                style="width: 95%"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div class="card bg-white p-3">
+                    <div class="d-flex justify-content-center">
+                        <div class="text-center">
                             <h5>Back View</h5>
                             <image
                                 src="data:image/png;base64,{{ image_back }}"
@@ -53,10 +85,6 @@ content %}
                                 style="width: 95%"
                             />
                         </div>
-                    </div>
-                </div>
-                <div class="card bg-white p-3">
-                    <div class="d-flex justify-content-center">
                         <div class="text-center me-3">
                             <h5>Left View</h5>
                             <image
@@ -66,15 +94,7 @@ content %}
                                 style="width: 95%"
                             />
                         </div>
-                        <div class="text-center">
-                            <h5>Right View</h5>
-                            <image
-                                src="data:image/png;base64,{{ image_right }}"
-                                class="image-fluid"
-                                id="rightImage"
-                                style="width: 95%"
-                            />
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -87,14 +107,14 @@ content %}
                     class="btn btn-success py-3 px-4 fs-1 nexttoimage mb-2"
                     style="width: 100%"
                 >
-                    <h2>Next Assembly</h2>
+                    <h1>Next Assembly</h1>
                 </button>
                 <a
                     href="{{ url_for('blueprint.log_off') }}"
                     class="btn btn-danger py-3 px-4 fs-1 nexttoimage d-flex align-items-center justify-content-center"
                     style="width: 100%"
                 >
-                    <h2>Log Out</h2>
+                    <h1>Log Out</h1>
                 </a>
             </div>
         </div>

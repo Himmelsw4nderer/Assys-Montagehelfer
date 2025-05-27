@@ -12,7 +12,7 @@ app.register_blueprint(blueprint_blueprint)
 app.register_blueprint(pick_by_light_blueprint)
 
 @app.route('/', methods=['GET'])
-def index():Add auto-acknowledge polling to control form
+def index():#Add auto-acknowledge polling to control form
     return render_template('index.html')
 
 if __name__ == "__main__":
