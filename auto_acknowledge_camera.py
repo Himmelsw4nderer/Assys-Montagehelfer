@@ -3,9 +3,8 @@ import mediapipe as mp
 import requests
 import time
 import os
-import sys
 import argparse
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Any
 
 
 def initialize_mediapipe_hands() -> Tuple:
@@ -22,7 +21,7 @@ def initialize_mediapipe_hands() -> Tuple:
     return mp_hands, hands, mp_drawing, mp_drawing_styles
 
 
-def process_frame(image, hands) -> Optional[mp.solutions.hands.Hands]:
+def process_frame(image, hands) -> Any:
     """Process image frame and detect hands."""
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     return hands.process(image_rgb)
@@ -41,16 +40,19 @@ def draw_hand_landmarks(image, results, mp_hands, mp_drawing, mp_drawing_styles)
             )
 
 
-def send_acknowledge_request(url: str = None) -> bool:
+def send_acknowledge_request(url: str = "") -> bool:
     """Send HTTP POST request to acknowledge endpoint."""
     # Use default URL if none provided
-    if url is None:
+    if not url:
         # Get from environment variable or use default
         server_url = os.environ.get("ASSYS_SERVER_URL", "http://localhost:5000")
         url = f"{server_url}/auto_acknowledge"
 
     try:
-        response = requests.post(url)
+        # Send gesture-specific payload
+        payload = {"type": "gesture", "direction": "next"}
+        headers = {"Content-Type": "application/json"}
+        response = requests.post(url, json=payload, headers=headers)
         print(f"HTTP request sent. Response: {response.status_code}")
         return True
     except Exception as e:
@@ -85,23 +87,20 @@ def main() -> None:
         except ValueError:
             print(f"Warning: Invalid CAMERA_DEVICE environment variable. Using default: {camera_device}")
 
-    # Get acknowledgment URL
+    # Get acknowledgment URL and hand duration
     server_url = args.server_url
     acknowledgment_url = f"{server_url}{args.endpoint}"
+    hand_duration = args.hand_duration
 
     print(f"Starting camera recognition with device {camera_device}")
     print(f"Using acknowledgment URL: {acknowledgment_url}")
+    print(f"Hand duration threshold: {hand_duration} seconds")
 
     mp_hands, hands, mp_drawing, mp_drawing_styles = initialize_mediapipe_hands()
     cap = cv2.VideoCapture(camera_device)
 
     hand_detected_start = None
     http_request_sent = False
-
-    # Get hand duration from arguments
-    args = parse_arguments()
-    hand_duration = args.hand_duration
-    acknowledgment_url = f"{args.server_url}{args.endpoint}"
 
     while cap.isOpened():
         success, image = cap.read()
@@ -111,7 +110,7 @@ def main() -> None:
 
         results = process_frame(image, hands)
 
-        if results.multi_hand_landmarks:
+        if results and results.multi_hand_landmarks:
             draw_hand_landmarks(image, results, mp_hands, mp_drawing, mp_drawing_styles)
 
             if hand_detected_start is None:

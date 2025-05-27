@@ -54,19 +54,39 @@
     </div>
 </div>
 
-<!-- Audio element for ping sound -->
+<!-- Audio elements for acknowledge sounds -->
 <audio id="pingSound" src="{{ url_for('static', filename='ping.mp3') }}" preload="auto"></audio>
+<audio id="voiceAckSound" src="{{ url_for('static', filename='ping.mp3') }}" preload="auto"></audio>
+<audio id="gestureAckSound" src="{{ url_for('static', filename='ping.mp3') }}" preload="auto"></audio>
 
 <script>
-    // Poll the auto_acknowledge endpoint every second
+    // Keep track of last acknowledged state to prevent duplicate submissions
+    let lastAcknowledged = false;
+    
+    // Poll the auto_acknowledge endpoint every half second
     function checkAutoAcknowledge() {
         fetch("{{ url_for('blueprint.get_auto_acknowledge') }}")
-            .then((response) => response.json())
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then((data) => {
-                if (data.auto_acknowledged === true) {
-
-                    // Play ping sound when auto-acknowledged
-                    document.getElementById('pingSound').play();
+                if (data.auto_acknowledged === true && !lastAcknowledged) {
+                    lastAcknowledged = true;
+                    console.log("Auto-acknowledged with direction:", data.direction);
+                    
+                    // Play appropriate sound based on acknowledgment type
+                    if (data.ack_type === "voice") {
+                        document.getElementById('voiceAckSound').play();
+                    } else if (data.ack_type === "gesture") {
+                        document.getElementById('gestureAckSound').play();
+                    } else {
+                        document.getElementById('pingSound').play();
+                    }
+                    
+                    // Submit the form with the appropriate direction
                     const form = document.getElementById("blueprintForm");
                     const input = document.createElement("input");
                     input.type = "hidden";
@@ -74,11 +94,15 @@
                     input.value = data.direction || "next";
                     form.appendChild(input);
                     form.submit();
+                } else if (data.auto_acknowledged === false) {
+                    lastAcknowledged = false;
                 }
             })
-            .catch((error) =>
-                console.error("Error checking auto acknowledge:", error),
-            );
+            .catch((error) => {
+                console.error("Error checking auto acknowledge:", error);
+                // Reset on error to prevent getting stuck
+                lastAcknowledged = false;
+            });
     }
 
     // Adjust button height to match image
@@ -90,12 +114,17 @@
             button.style.height = imageHeight * 1 + "px";
         });
     }
-Add auto-acknowledge polling to control form
     // Call once when loaded and on window resize
     window.addEventListener("load", adjustButtonHeight);
     window.addEventListener("resize", adjustButtonHeight);
 
-    // Check every second
+    // Initialize the check
+    checkAutoAcknowledge();
+    
+    // Then check every half second
     setInterval(checkAutoAcknowledge, 500);
+    
+    // Log that polling has started
+    console.log("Auto-acknowledge polling started");
 </script>
 {% endblock %}
