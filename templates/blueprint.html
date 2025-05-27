@@ -1,5 +1,14 @@
-{% extends "base.html" %} {% block title %} Blueprint {% endblock %} {% block
-content %}
+{% extends "base.html" %} {% block title %} Blueprint {% endblock %} 
+{% block navbar_actions %}
+<li class="nav-item">
+    <form method="post" action="{{ url_for('blueprint.log_off') }}">
+        <button type="submit" class="btn btn-danger hover-zoom">
+            <i class="fas fa-sign-out-alt me-2"></i> Log Out
+        </button>
+    </form>
+</li>
+{% endblock %}
+{% block content %}
 <div class="card">
     <div class="card-body">
         <h1 class="card-title">Add the highlighted Brick - Step {{ step }} of {{ max_steps }}</h1>
@@ -45,6 +54,9 @@ content %}
     </div>
 </div>
 
+<!-- Audio element for ping sound -->
+<audio id="pingSound" src="{{ url_for('static', filename='ping.mp3') }}" preload="auto"></audio>
+
 <script>
     // Poll the auto_acknowledge endpoint every second
     function checkAutoAcknowledge() {
@@ -52,6 +64,9 @@ content %}
             .then((response) => response.json())
             .then((data) => {
                 if (data.auto_acknowledged === true) {
+                    // Play ping sound when auto-acknowledged
+                    document.getElementById('pingSound').play();
+
                     // If auto_acknowledged is true, submit the form with "next" direction
                     const form = document.getElementById("blueprintForm");
                     const input = document.createElement("input");
