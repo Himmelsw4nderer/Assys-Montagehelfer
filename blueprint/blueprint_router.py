@@ -6,8 +6,8 @@ from pick_by_light.pick_by_light_controller import PickByLightController
 # Global state to ensure accessibility across all route functions
 state = {
     "auto_acknowledged": False,
-    "auto_gesture_ack": False,
-    "auto_voice_ack": False,
+    "auto_gesture_ack": True,  # Enable by default for better usability
+    "auto_voice_ack": True,    # Enable by default for better usability
     "auto_direction": "next"
 }
 

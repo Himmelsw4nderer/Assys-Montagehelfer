@@ -16,7 +16,8 @@ def send_acknowledge_request(url: str | None = None, direction: str = "next") ->
 
     try:
         payload = {"type": "voice", "direction": direction}
-        response = requests.post(url, json=payload)
+        headers = {"Content-Type": "application/json"}
+        response = requests.post(url, json=payload, headers=headers)
         print(f"HTTP request sent with direction '{direction}'. Response: {response.status_code}")
         return True
     except Exception as e:

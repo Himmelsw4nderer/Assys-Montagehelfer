@@ -1,11 +1,12 @@
 # Camera Recognition Control for Assys-Montagehelfer
 
-This extension adds camera-based gesture control to the Assys-Montagehelfer system, allowing you to navigate through assembly steps using hand gestures.
+This extension adds camera-based gesture control to the Assys-Montagehelfer system, allowing you to navigate through assembly steps using hand gestures and swipe motions.
 
 ## Features
 
 - Hands-free navigation through assembly steps
 - Real-time hand tracking and gesture detection
+- Swipe gesture recognition (left to right = back, right to left = next)
 - Visual feedback with overlay of detected hand landmarks
 - Configurable sensitivity and timing parameters
 
@@ -23,13 +24,14 @@ This extension adds camera-based gesture control to the Assys-Montagehelfer syst
    ```
 
 4. Begin your assembly process in the web application
-5. When you want to move to the next step, simply show your hand to the camera
-   - Hold your hand steady for about 0.75 seconds
-   - The system will automatically acknowledge and move to the next step
+5. Use swipe gestures to navigate through steps:
+   - Swipe your hand from right to left to move to the next step
+   - Swipe your hand from left to right to go back to the previous step
+   - The system will detect your swipe direction and respond accordingly
 
 ## Configuration
 
-You can customize the camera recognition behavior using environment variables:
+You can customize the camera recognition behavior using environment variables or command-line arguments:
 
 - `ASSYS_SERVER_URL`: The URL of your Assys-Montagehelfer server
   ```
@@ -39,6 +41,11 @@ You can customize the camera recognition behavior using environment variables:
 - `CAMERA_DEVICE`: Which camera to use (default: 0)
   ```
   export CAMERA_DEVICE=1  # Use the second camera
+  ```
+
+- `--swipe-threshold` or `-t`: Minimum pixel movement to detect a swipe (default: 100)
+  ```
+  ./start_camera_control.sh --swipe-threshold 150
   ```
 
 ## Troubleshooting
@@ -58,6 +65,12 @@ You can customize the camera recognition behavior using environment variables:
 
 ## Technical Details
 
-The camera recognition system uses MediaPipe Hands for real-time hand tracking. When a hand is detected and remains in view for a short period (default: 0.75 seconds), it sends an HTTP request to the server to advance to the next step, just as if the user had clicked the "Next Step" button.
+The camera recognition system uses MediaPipe Hands for real-time hand tracking and gesture detection:
 
-The visual window shows the camera feed with hand landmarks overlaid, allowing you to verify that your hand is being properly detected.
+- When a horizontal swipe gesture is detected, the system determines its direction:
+  - Right-to-left swipes trigger "next" step navigation
+  - Left-to-right swipes trigger "back" step navigation
+
+- The system tracks hand position over time to detect swipe motions and sends the appropriate direction command to the server.
+
+- The visual window shows the camera feed with hand landmarks overlaid and instructions for available gestures.
