@@ -1,4 +1,4 @@
-#from rpi_ws281x import PixelStrip, Color
+from rpi_ws281x import PixelStrip
 from typing import Dict, Optional, Any, Tuple
 from pick_by_light.color_helper import get_color_by_name
 
@@ -16,9 +16,9 @@ class PickByLightController:
         LED_INVERT = False    # True to invert the signal (when using NPN transistor level shift)
         LED_CHANNEL = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
-        """self.pixels = PixelStrip(self.num_pixels, self.led_pin, LED_FREQ_HZ, LED_DMA, LED_INVERT,
+        self.pixels = PixelStrip(self.num_pixels, self.led_pin, LED_FREQ_HZ, LED_DMA, LED_INVERT,
                               LED_BRIGHTNESS, LED_CHANNEL)
-        self.pixels.begin()"""
+        self.pixels.begin()
 
         self.cleanup()
 

@@ -1,7 +1,14 @@
-{% extends "base.html" %} {% block title %} Blueprint {% endblock %} 
-{% block nav_extra %}
+{% extends "base.html" %} {% block title %} Blueprint {% endblock %} {% block
+nav_extra %}
 <li class="nav-item">
     <span class="help-icon" id="help-trigger" title="Hilfe">?</span>
+</li>
+<li class="nav-item">
+    <form method="post" action="{{ url_for('blueprint.log_off') }}">
+        <button type="submit" class="btn btn-danger hover-zoom">
+            <i class="fas fa-sign-out-alt me-2"></i> Hauptmenü
+        </button>
+    </form>
 </li>
 
 <!-- Popup -->
@@ -10,15 +17,22 @@
         <span class="close-btn" id="close-help">&times;</span>
         <h2>Hilfe - Endkontrolle</h2>
         <p>
-            Sie haben die Montageschritte eines Teils abgeschlossen. Kontrollieren Sie das Teil anhand der Bilder von allen Seiten. Ist bei der Montage ein Fehler aufgetreten können Sie über den Knopf „Zurück“ zum letzten Montageschritt zurückkehren. Alternativ können Sie das Teil zerlegen und über den Knopf „Zum ersten Schritt“ die Anleitung für das Teil erneut durchlaufen. Nutzen Sie dafür die bereits verwendeten Klemmbausteine.
-            Stimmt das Teil mit den Bildern überein, entfernen Sie dieses von der Montageplatte. Über den Knopf „Nächste Anleitung“ können Sie die Montage eines weiteren Teils beginnen. Über den Knopf „Hauptmenü“ können Sie zurück in das Hauptmenü gehen und die Montage beenden.
+            Sie haben die Montageschritte eines Teils abgeschlossen.
+            Kontrollieren Sie das Teil anhand der Bilder von allen Seiten. Ist
+            bei der Montage ein Fehler aufgetreten, können Sie über den Knopf
+            „Zurück“ zum letzten Montageschritt zurückkehren. Alternativ können
+            Sie das Teil zerlegen und über den Knopf „Zum ersten Schritt“ die
+            Anleitung für das Teil erneut durchlaufen. Nutzen Sie dafür die
+            bereits verwendeten Klemmbausteine. Stimmt das Teil mit den Bildern
+            überein, entfernen Sie dieses von der Montageplatte. Über den Knopf
+            „Nächste Anleitung“ können Sie die Montage eines weiteren Teils
+            beginnen. Über den Knopf „Hauptmenü“ können Sie zurück in das
+            Hauptmenü gehen und die Montage beenden.
         </p>
     </div>
 </div>
 
-{% endblock %}
-{% block
-content %}
+{% endblock %} {% block content %}
 <form
     id="controlForm"
     method="post"
@@ -28,7 +42,7 @@ content %}
     <input type="hidden" name="blueprint" value="{{ blueprint }}" />
 
     <div class="card p-4 bg-light">
-        <h1 class="mb-3">Please Control the object from all Sides</h1>
+        <h1 class="mb-3">Kontrollieren Sie das Endprodukt von allen Seiten</h1>
         <div class="d-flex align-items-center">
             <div class="d-flex flex-column" style="width: 600px">
                 <button
@@ -55,7 +69,7 @@ content %}
                 <div class="card bg-white p-3 mb-3">
                     <div class="d-flex justify-content-center">
                         <div class="text-center me-3">
-                            <h5>Front View</h5>
+                            <h5>Frontalansicht</h5>
                             <image
                                 src="data:image/png;base64,{{ image_front }}"
                                 class="image-fluid"
@@ -64,7 +78,7 @@ content %}
                             />
                         </div>
                         <div class="text-center">
-                            <h5>Right View</h5>
+                            <h5>Rechte Seitenansicht</h5>
                             <image
                                 src="data:image/png;base64,{{ image_right }}"
                                 class="image-fluid"
@@ -77,7 +91,7 @@ content %}
                 <div class="card bg-white p-3">
                     <div class="d-flex justify-content-center">
                         <div class="text-center">
-                            <h5>Back View</h5>
+                            <h5>Rückansicht</h5>
                             <image
                                 src="data:image/png;base64,{{ image_back }}"
                                 class="image-fluid"
@@ -86,7 +100,7 @@ content %}
                             />
                         </div>
                         <div class="text-center me-3">
-                            <h5>Left View</h5>
+                            <h5>Linke Seitenansicht</h5>
                             <image
                                 src="data:image/png;base64,{{ image_left }}"
                                 class="image-fluid"
@@ -94,7 +108,6 @@ content %}
                                 style="width: 95%"
                             />
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -107,14 +120,14 @@ content %}
                     class="btn btn-success py-3 px-4 fs-1 nexttoimage mb-2"
                     style="width: 100%"
                 >
-                    <h1>Next Assembly</h1>
+                    <h1>Nächste Anleitung</h1>
                 </button>
                 <a
                     href="{{ url_for('index') }}"
                     class="btn btn-danger py-3 px-4 fs-1 nexttoimage d-flex align-items-center justify-content-center"
                     style="width: 100%"
                 >
-                    <h1>Log Out</h1>
+                    <h1>Hauptmenü</h1>
                 </a>
             </div>
         </div>
@@ -128,9 +141,9 @@ content %}
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Cache-Control": "no-cache, no-store, must-revalidate"
+                "Cache-Control": "no-cache, no-store, must-revalidate",
             },
-            credentials: "same-origin"
+            credentials: "same-origin",
         })
             .then((response) => {
                 if (!response.ok) {
@@ -146,7 +159,7 @@ content %}
                     const input = document.createElement("input");
                     input.type = "hidden";
                     input.name = "direction";
-                    
+
                     // Map voice directions to control actions
                     let direction = data.direction || "next";
                     if (direction === "back") {
@@ -154,7 +167,7 @@ content %}
                     } else {
                         direction = "next";
                     }
-                    
+
                     input.value = direction;
                     form.appendChild(input);
                     console.log("Submitting form with direction:", direction);

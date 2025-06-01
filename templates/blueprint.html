@@ -1,7 +1,13 @@
-{% extends "base.html" %} {% block title %} Blueprint {% endblock %} 
-{% block nav_extra %}
+{% extends "base.html" %} {% block nav_extra %}
 <li class="nav-item">
     <span class="help-icon" id="help-trigger" title="Hilfe">?</span>
+</li>
+<li class="nav-item">
+    <form method="post" action="{{ url_for('blueprint.log_off') }}">
+        <button type="submit" class="btn btn-danger hover-zoom">
+            <i class="fas fa-sign-out-alt me-2"></i> Hauptmenü
+        </button>
+    </form>
 </li>
 
 <!-- Popup -->
@@ -10,18 +16,24 @@
         <span class="close-btn" id="close-help">&times;</span>
         <h2>Hilfe - Montage</h2>
         <p>
-            Nehmen Sie einen Klemmbaustein aus dem durch Leuchten markierten Behälter und platzieren Sie diesen wie auf dem Bild zu sehen auf der Montageplatte. Der zu platzierende Klemmbaustein ist in seiner Farbe dargestellt. Die in den vorherigen Schritten zu platzierenden Klemmbausteine sind in schwacher Farbe dargestellt. Über die Knöpfe „Weiter“ und „Zurück“ können Sie zwischen den einzelnen Montageschritten navigieren. Die Navigation kann zudem anhand von Gesten oder Sprache erfolgen (siehe Hilfe im Hauptmenü).
+            Nehmen Sie einen Klemmbaustein aus dem durch Leuchten markierten
+            Behälter und platzieren Sie diesen wie auf dem Bild zu sehen auf der
+            Montageplatte. Der zu platzierende Klemmbaustein ist in seiner Farbe
+            dargestellt. Die in den vorherigen Schritten zu platzierenden
+            Klemmbausteine sind in schwacher Farbe dargestellt. Über die Knöpfe
+            „Weiter" und „Zurück" können Sie zwischen den einzelnen
+            Montageschritten navigieren. Die Navigation kann zudem anhand von
+            Gesten oder Sprache erfolgen (siehe Hilfe im Hauptmenü).
         </p>
     </div>
 </div>
 
-{% endblock %}
-{% block
-content %}
+{% endblock %} {% block content %}
 <div class="card">
     <div class="card-body">
         <h1 class="card-title">
-            Add the highlighted Brick - Step {{ step }} of {{ max_steps }}
+            Montieren Sie den markierten Klemmbaustein - Schritt {{ step }} von
+            {{ max_steps }}
         </h1>
 
         <form
@@ -36,6 +48,7 @@ content %}
                     type="submit"
                     name="direction"
                     value="back"
+                    id="backButton"
                     class="btn btn-secondary py-2 px-4 fs-5 nexttoimage"
                     style="height: 20%; width: 450px"
                 >
@@ -65,39 +78,53 @@ content %}
     </div>
 </div>
 
-
 <!-- Audio elements for acknowledge sounds -->
-<audio id="pingSound" src="{{ url_for('static', filename='ping.mp3') }}" preload="auto"></audio>
-<audio id="voiceAckSound" src="{{ url_for('static', filename='ping.mp3') }}" preload="auto"></audio>
-<audio id="gestureAckSound" src="{{ url_for('static', filename='ping.mp3') }}" preload="auto"></audio>
+<audio
+    id="pingSound"
+    src="{{ url_for('static', filename='ping.mp3') }}"
+    preload="auto"
+></audio>
+<audio
+    id="voiceAckSound"
+    src="{{ url_for('static', filename='ping.mp3') }}"
+    preload="auto"
+></audio>
+<audio
+    id="gestureAckSound"
+    src="{{ url_for('static', filename='ping.mp3') }}"
+    preload="auto"
+></audio>
 
 <script>
     // Keep track of last acknowledged state to prevent duplicate submissions
     let lastAcknowledged = false;
-    
+
     // Poll the auto_acknowledge endpoint every half second
     function checkAutoAcknowledge() {
         fetch("{{ url_for('blueprint.get_auto_acknowledge') }}")
             .then((response) => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error("Network response was not ok");
                 }
                 return response.json();
             })
             .then((data) => {
                 if (data.auto_acknowledged === true && !lastAcknowledged) {
                     lastAcknowledged = true;
-                    console.log("Auto-acknowledged with direction:", data.direction);
-                    
+                    console.log(
+                        "Auto-acknowledged with direction:",
+                        data.direction,
+                    );
+
                     // Play appropriate sound based on acknowledgment type
                     if (data.ack_type === "voice") {
-                        document.getElementById('voiceAckSound').play();
+                        document.getElementById("voiceAckSound").play();
                     } else if (data.ack_type === "gesture") {
-                        document.getElementById('gestureAckSound').play();
+                        document.getElementById("gestureAckSound").play();
                     } else {
-                        document.getElementById('pingSound').play();
+                        document.getElementById("pingSound").play();
                     }
-                    
+
                     // Submit the form with the appropriate direction
                     const form = document.getElementById("blueprintForm");
                     const input = document.createElement("input");
@@ -138,11 +165,25 @@ content %}
 
     // Initialize the check
     checkAutoAcknowledge();
-    
+
     // Then check every half second
     setInterval(checkAutoAcknowledge, 500);
-    
+
     // Log that polling has started
     console.log("Auto-acknowledge polling started");
+
+    // JavaScript for disabling the back button based on step
+    document.addEventListener('DOMContentLoaded', function() {
+        const backButton = document.getElementById('backButton');
+        const currentStep = {{ step }};
+
+        if (currentStep === 1) {
+            backButton.disabled = true;
+            backButton.classList.add('disabled');
+        } else {
+            backButton.disabled = false;
+            backButton.classList.remove('disabled');
+        }
+    });
 </script>
-{% endblock %}
+{% endblock %} {% block title %} Blueprint {% endblock %}

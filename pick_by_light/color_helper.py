@@ -1,4 +1,4 @@
-#from rpi_ws281x import Color
+from rpi_ws281x import Color
 
 def get_color_by_name(color_name):
     """
@@ -10,7 +10,7 @@ def get_color_by_name(color_name):
     Returns:
         Color: Color object matching the given name, or a default gray color
     """
-    """if color_name == "red":
+    if color_name == "red":
         color = Color(255, 0, 0)
     elif color_name == "green":
         color = Color(0, 255, 0)
@@ -25,6 +25,6 @@ def get_color_by_name(color_name):
     elif color_name == "white":
         color = Color(255, 255, 255)
     else:
-        color = Color(100, 100, 100)"""
+        color = Color(100, 100, 100)
 
-    return None #color
+    return color
