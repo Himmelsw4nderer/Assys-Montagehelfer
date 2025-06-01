@@ -1,13 +1,23 @@
-{% extends "base.html" %} {% block title %} Blueprint {% endblock %} {% block
-navbar_actions %}
+{% extends "base.html" %} {% block title %} Blueprint {% endblock %} 
+{% block nav_extra %}
 <li class="nav-item">
-    <form method="post" action="{{ url_for('blueprint.log_off') }}">
-        <button type="submit" class="btn btn-danger hover-zoom">
-            <i class="fas fa-sign-out-alt me-2"></i> Log Out
-        </button>
-    </form>
+    <span class="help-icon" id="help-trigger" title="Hilfe">?</span>
 </li>
-{% endblock %} {% block content %}
+
+<!-- Popup -->
+<div id="help-popup" class="help-popup hidden">
+    <div class="help-content">
+        <span class="close-btn" id="close-help">&times;</span>
+        <h2>Hilfe - Montage</h2>
+        <p>
+            Nehmen Sie einen Klemmbaustein aus dem durch Leuchten markierten Behälter und platzieren Sie diesen wie auf dem Bild zu sehen auf der Montageplatte. Der zu platzierende Klemmbaustein ist in seiner Farbe dargestellt. Die in den vorherigen Schritten zu platzierenden Klemmbausteine sind in schwacher Farbe dargestellt. Über die Knöpfe „Weiter“ und „Zurück“ können Sie zwischen den einzelnen Montageschritten navigieren. Die Navigation kann zudem anhand von Gesten oder Sprache erfolgen (siehe Hilfe im Hauptmenü).
+        </p>
+    </div>
+</div>
+
+{% endblock %}
+{% block
+content %}
 <div class="card">
     <div class="card-body">
         <h1 class="card-title">
@@ -27,9 +37,9 @@ navbar_actions %}
                     name="direction"
                     value="back"
                     class="btn btn-secondary py-2 px-4 fs-5 nexttoimage"
-                    style="height: 100%; width: 450px; min-height: 300px"
+                    style="height: 20%; width: 450px"
                 >
-                    <h2>Back</h2>
+                    <h1>Zurück</h1>
                 </button>
 
                 <div class="text-center flex-grow-1">
@@ -46,9 +56,9 @@ navbar_actions %}
                     name="direction"
                     value="next"
                     class="btn btn-success py-2 px-4 fs-5 nexttoimage"
-                    style="height: 100%; width: 450px; min-height: 300px"
+                    style="height: 80%; width: 450px"
                 >
-                    <h2>Next</h2>
+                    <h1>Weiter</h1>
                 </button>
             </div>
         </form>
