@@ -8,11 +8,13 @@ blueprint_blueprint = create_blueprint_blueprint(pick_by_light_controller)
 pick_by_light_blueprint = create_pick_by_light_blueprint(pick_by_light_controller)
 
 app = Flask(__name__)
+app.secret_key = 'demo_secret_key_12345'  # Für Demo-Zwecke
 app.register_blueprint(blueprint_blueprint)
 app.register_blueprint(pick_by_light_blueprint)
 
 @app.route('/', methods=['GET'])
-def index():#Add auto-acknowledge polling to control form
+
+def index():
     return render_template('index.html')
 
 if __name__ == "__main__":

@@ -6,8 +6,9 @@ from pick_by_light.pick_by_light_controller import PickByLightController
 # Global state to ensure accessibility across all route functions
 state = {
     "auto_acknowledged": False,
-    "auto_gesture_ack": False,
-    "auto_voice_ack": False
+    "auto_gesture_ack": True,  # Enable by default for better usability
+    "auto_voice_ack": True,    # Enable by default for better usability
+    "auto_direction": "next"
 }
 
 def create_blueprint(pick_by_light_controller: PickByLightController) -> Blueprint:
@@ -112,24 +113,64 @@ def register_control_routes(blueprint: Blueprint) -> None:
 def register_auto_acknowledge_routes(blueprint: Blueprint):
     @blueprint.route("/auto_acknowledge", methods=["GET"])
     def get_auto_acknowledge():
-        if state["auto_acknowledged"] == False:
-            return {"auto_acknowledged": False}
+        global state
+        print(f"GET auto_acknowledge - current state: {state}")
+
+        if not state.get("auto_acknowledged", False):
+            return jsonify({"auto_acknowledged": False, "direction": "next"})
+
+        direction = state.get("auto_direction", "next")
+
+        # Reset state after acknowledgement has been processed
         state["auto_acknowledged"] = False
-        return {"auto_acknowledged": True}
+        state["auto_direction"] = "next"
+
+        print(f"Auto acknowledgment processed with direction: {direction}")
+
+        return jsonify({
+            "auto_acknowledged": True,
+            "direction": direction
+        })
 
     @blueprint.route("/auto_acknowledge", methods=["POST"])
     def set_auto_acknowledge():
-        data = request.get_json() or {}
+        global state
+        print(f"POST auto_acknowledge - current state before: {state}")
+
+        # More robust handling of request data
+        if request.is_json:
+            data = request.get_json(silent=True) or {}
+        else:
+            # Try to handle form data as fallback
+            data = request.form.to_dict() or {}
+
+        print(f"Received data: {data}")
+
         ack_type = data.get("type")
+        direction = data.get("direction", "next")
 
-        if ack_type == "voice" and state["auto_voice_ack"]:
+        if ack_type == "voice" and state.get("auto_voice_ack", False):
             state["auto_acknowledged"] = True
-        elif ack_type == "gesture" and state["auto_gesture_ack"]:
+            state["auto_direction"] = direction
+            print(f"Voice acknowledgment received with direction: {direction}")
+        elif ack_type == "gesture" and state.get("auto_gesture_ack", False):
             state["auto_acknowledged"] = True
+            state["auto_direction"] = direction
+            print(f"Gesture acknowledgment received with direction: {direction}")
         elif not ack_type:
-            state["auto_acknowledged"] = False
+            # Direct POST request without type specification
+            state["auto_acknowledged"] = True
+            state["auto_direction"] = direction
+            print(f"Direct acknowledgment received with direction: {direction}")
 
-        return {"auto_acknowledged": state["auto_acknowledged"]}
+        print(f"POST auto_acknowledge - current state after: {state}")
+
+        return jsonify({
+            "auto_acknowledged": state.get("auto_acknowledged", False),
+            "direction": state.get("auto_direction", "next"),
+            "ack_type": ack_type,
+            "state_debug": state
+        })
 
     @blueprint.route("/settings/update", methods=["POST"])
     def update_settings():

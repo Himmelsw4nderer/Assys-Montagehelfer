@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,38 +16,18 @@
         />
 
         <style>
-            :root {
-                /* Light theme (default) */
-                --bg-color: #ffffff;
-                --text-color: #212529;
-                --navbar-bg: #f8f9fa;
-                --container-bg: #ffffff;
-                --gradient-color-1: #0047ab;
-                --gradient-color-2: #ffffff;
-            }
-
-            [data-theme="dark"] {
-                /* Dark theme */
-                --bg-color: #121212;
-                --text-color: #e0e0e0;
-                --navbar-bg: #333333;
-                --container-bg: #2a2a2a;
-                --gradient-color-1: #002855;
-                --gradient-color-2: #121212;
-            }
-
             body {
-                color: var(--text-color);
-                background-color: var(--bg-color);
+                color: #212529;
+                background-color: #ffffff;
             }
 
             .navbar {
-                background-color: var(--navbar-bg) !important;
+                background-color: #f8f9fa !important;
             }
 
             .navbar-light .navbar-brand,
             .navbar-light .navbar-nav .nav-link {
-                color: var(--text-color);
+                color: #212529;
             }
 
 
@@ -59,7 +39,7 @@
             }
 
             .content-container {
-                background-color: var(--container-bg);
+                background-color: #ffffff;
                 border-radius: 15px;
             }
 
@@ -248,19 +228,11 @@
                         Auto Acknowledge mit Voice
                     </label>
                 </div>
-                <div class="form-check">
-                    <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="gestureAcknowledge"
-                        disabled
-                    />
-                    <label
-                        class="form-check-label"
-                        for="gestureAcknowledge"
-                    >
-                        Auto Acknowledge mit Gestures
-                    </label>
+                <div class="status-indicator" id="gestureStatus">
+                    <div class="status-icon" id="gestureIcon"></div>
+                    <span class="status-text">
+                        <i class="fas fa-camera mr-1"></i>Camera Recognition
+                    </span>
                 </div>
             </div>-->
             <div class="checkbox-container">
@@ -306,8 +278,6 @@
             </div>
         </nav>
 
-        <div class="animated-bg position-fixed w-100 h-100" style="top: 0; left: 0; z-index: -1"></div>
-
         <div class="container-fluid">
             {% if warning %}
             <div
@@ -338,7 +308,6 @@
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-        <!-- Dark mode toggle script -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const themeToggleBtn = document.getElementById('theme-toggle');
@@ -382,11 +351,28 @@
                         }
                         const data = await response.json();
 
-                        // Update checkboxes with the fetched settings
-                        document.getElementById('voiceAcknowledge').checked = data.auto_voice_ack;
-                        document.getElementById('gestureAcknowledge').checked = data.auto_gesture_ack;
+                        // Update status indicators with the fetched settings
+                        updateStatusIndicator('voiceStatus', 'voiceIcon', data.auto_voice_ack);
+                        updateStatusIndicator('gestureStatus', 'gestureIcon', data.auto_gesture_ack);
                     } catch (error) {
                         console.error('Error fetching settings:', error);
+                    }
+                }
+
+                function updateStatusIndicator(statusId, iconId, isActive) {
+                    const statusElement = document.getElementById(statusId);
+                    const iconElement = document.getElementById(iconId);
+
+                    if (isActive) {
+                        statusElement.classList.remove('inactive');
+                        statusElement.classList.add('active');
+                        iconElement.classList.remove('inactive');
+                        iconElement.classList.add('active');
+                    } else {
+                        statusElement.classList.remove('active');
+                        statusElement.classList.add('inactive');
+                        iconElement.classList.remove('active');
+                        iconElement.classList.add('inactive');
                     }
                 }
 

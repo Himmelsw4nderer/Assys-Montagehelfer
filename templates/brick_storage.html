@@ -1,7 +1,22 @@
-{% extends "base.html" %} {% block title %} Home {% endblock %} {% block content
+{% extends "base.html" %} {% block title %} Home {% endblock %}
+{% block navbar_actions %}
+<li class="nav-item">
+    <a href="{{ url_for('index') }}" class="btn btn-danger hover-zoom">
+        <i class="fas fa-sign-out-alt me-2"></i> Abmelden
+    </a>
+</li>
+{% endblock %}
+{% block content
 %}
 <div class="container mt-5">
-    <h1>Storage Management</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-box-open me-2"></i> Storage Management</h1>
+        <div>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-home me-2"></i> Startseite
+            </a>
+        </div>
+    </div>
 
     <div class="row">
         <!-- Form Card (Left Column) -->
