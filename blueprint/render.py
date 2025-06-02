@@ -107,10 +107,10 @@ def render_cube_view(cube_representation: np.ndarray) -> str:
 
 def render_control_views(steps: List[Tuple]) -> Tuple[str, str, str, str]:
     cube_representation = blueprint_to_cube(steps)
-    cube_representation_flipped_back = np.transpose(cube_representation, axes=(1, 0, 2))
-    back_view = render_cube_view(cube_representation_flipped_back)
-    cube_representation_flipped_front = np.flip(np.flip(cube_representation_flipped_back, axis=0), axis=2)
+    cube_representation_flipped_front = np.flip(np.transpose(cube_representation, axes=(1, 0, 2)), axis=0)
     front_view = render_cube_view(cube_representation_flipped_front)
+    cube_representation_flipped_back = np.flip(np.flip(cube_representation_flipped_front, axis=0), axis=2)
+    back_view = render_cube_view(cube_representation_flipped_back)
     cube_representation_flipped_right = np.transpose(cube_representation, axes=(2, 0, 1))
     right_view = render_cube_view(cube_representation_flipped_right)
     cube_representation_flipped_left = np.flip(np.flip(cube_representation_flipped_right, axis=0), axis=2)

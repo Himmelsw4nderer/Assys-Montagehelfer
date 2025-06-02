@@ -291,136 +291,119 @@
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 const themeToggleBtn = document.getElementById("theme-toggle");
-                const themeIcon = themeToggleBtn.querySelector("i");
+                if (themeToggleBtn) {
+                    const themeIcon = themeToggleBtn.querySelector("i");
 
-                // Check for saved theme preference or use default
-                const currentTheme = localStorage.getItem("theme") || "light";
-                document.documentElement.setAttribute(
-                    "data-theme",
-                    currentTheme,
-                );
-
-                // Update button icon based on current theme
-                updateThemeIcon(currentTheme);
-
-                // Toggle theme on button click
-                themeToggleBtn.addEventListener("click", function () {
+                    // Check for saved theme preference or use default
                     const currentTheme =
-                        document.documentElement.getAttribute("data-theme");
-                    const newTheme =
-                        currentTheme === "light" ? "dark" : "light";
-
+                        localStorage.getItem("theme") || "light";
                     document.documentElement.setAttribute(
                         "data-theme",
-                        newTheme,
+                        currentTheme,
                     );
-                    localStorage.setItem("theme", newTheme);
 
-                    updateThemeIcon(newTheme);
-                });
+                    // Update button icon based on current theme
+                    updateThemeIcon(currentTheme);
 
-                // Helper function to update the icon
-                function updateThemeIcon(theme) {
-                    if (theme === "dark") {
-                        themeIcon.classList.remove("fa-moon");
-                        themeIcon.classList.add("fa-sun");
-                    } else {
-                        themeIcon.classList.remove("fa-sun");
-                        themeIcon.classList.add("fa-moon");
-                    }
-                }
+                    // Toggle theme on button click
+                    themeToggleBtn.addEventListener("click", function () {
+                        const currentTheme =
+                            document.documentElement.getAttribute("data-theme");
+                        const newTheme =
+                            currentTheme === "light" ? "dark" : "light";
 
-                /* // Fetch current settings asynchronously
-                async function fetchCurrentSettings() {
-                    try {
-                        const response = await fetch('/settings/current');
-                        if (!response.ok) {
-                            throw new Error('Failed to fetch settings');
-                        }
-                        const data = await response.json();
-
-                        // Update status indicators with the fetched settings
-                        updateStatusIndicator('voiceStatus', 'voiceIcon', data.auto_voice_ack);
-                        updateStatusIndicator('gestureStatus', 'gestureIcon', data.auto_gesture_ack);
-                    } catch (error) {
-                        console.error('Error fetching settings:', error);
-                    }
-                }
-
-                function updateStatusIndicator(statusId, iconId, isActive) {
-                    const statusElement = document.getElementById(statusId);
-                    const iconElement = document.getElementById(iconId);
-
-                    if (isActive) {
-                        statusElement.classList.remove('inactive');
-                        statusElement.classList.add('active');
-                        iconElement.classList.remove('inactive');
-                        iconElement.classList.add('active');
-                    } else {
-                        statusElement.classList.remove('active');
-                        statusElement.classList.add('inactive');
-                        iconElement.classList.remove('active');
-                        iconElement.classList.add('inactive');
-                    }
-                }
-
-                // Call the function to fetch settings when the page loads
-                fetchCurrentSettings();
-
-                // Optionally, periodically refresh settings
-                setInterval(fetchCurrentSettings, 30000); // Refresh every 30 seconds*/
-                function updateStatusBox(id, isActive, label) {
-                    const box = document.getElementById(id);
-                    box.classList.remove("status-on", "status-off");
-                    box.classList.add(isActive ? "status-on" : "status-off");
-                    box.textContent = `${label} (${isActive ? "aktiviert" : "nicht aktiviert"})`;
-                }
-
-                async function fetchCurrentSettings() {
-                    try {
-                        const response = await fetch("/settings/current");
-                        if (!response.ok)
-                            throw new Error("Failed to fetch settings");
-
-                        const data = await response.json();
-
-                        updateStatusBox(
-                            "voiceStatus",
-                            data.auto_voice_ack,
-                            "Steuerung per Sprache",
+                        document.documentElement.setAttribute(
+                            "data-theme",
+                            newTheme,
                         );
-                        updateStatusBox(
-                            "gestureStatus",
-                            data.auto_gesture_ack,
-                            "Steuerung per Gesten",
-                        );
-                    } catch (error) {
-                        console.error("Error fetching settings:", error);
-                    }
-                }
+                        localStorage.setItem("theme", newTheme);
 
-                fetchCurrentSettings();
-                setInterval(fetchCurrentSettings, 30000);
+                        updateThemeIcon(newTheme);
+                    });
+                }
             });
+
+            // Fetch current settings asynchronously
+            async function fetchCurrentSettings() {
+                try {
+                    const response = await fetch("/settings/current");
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch settings");
+                    }
+                    const data = await response.json();
+
+                    // Update status indicators with the fetched settings
+                    updateStatusIndicator(
+                        "voiceStatus",
+                        "voiceIcon",
+                        data.auto_voice_ack,
+                    );
+                    updateStatusIndicator(
+                        "gestureStatus",
+                        "gestureIcon",
+                        data.auto_gesture_ack,
+                    );
+                } catch (error) {
+                    console.error("Error fetching settings:", error);
+                }
+            }
+
+            function updateStatusIndicator(statusId, iconId, isActive) {
+                const statusElement = document.getElementById(statusId);
+                const iconElement = document.getElementById(iconId);
+
+                if (statusElement) {
+                    if (isActive) {
+                        statusElement.classList.remove("status-off");
+                        statusElement.classList.add("status-on");
+                    } else {
+                        statusElement.classList.remove("status-on");
+                        statusElement.classList.add("status-off");
+                    }
+                }
+
+                if (iconElement) {
+                    if (isActive) {
+                        iconElement.classList.remove("inactive");
+                        iconElement.classList.add("active");
+                    } else {
+                        iconElement.classList.remove("active");
+                        iconElement.classList.add("inactive");
+                    }
+                }
+            }
+
+            // Call the function to fetch settings when the page loads
+            fetchCurrentSettings();
 
             const helpTrigger = document.getElementById("help-trigger");
             const helpPopup = document.getElementById("help-popup");
             const closeHelp = document.getElementById("close-help");
 
-            helpTrigger.addEventListener("click", () => {
-                helpPopup.classList.remove("hidden");
-            });
+            if (helpTrigger) {
+                helpTrigger.addEventListener("click", () => {
+                    if (helpPopup) {
+                        helpPopup.classList.remove("hidden");
+                    }
+                });
+            }
 
-            closeHelp.addEventListener("click", () => {
-                helpPopup.classList.add("hidden");
-            });
+            if (closeHelp) {
+                closeHelp.addEventListener("click", () => {
+                    if (helpPopup) {
+                        helpPopup.classList.add("hidden");
+                    }
+                });
+            }
 
             // Optional: Klick außerhalb des Popups schließt es auch
-            helpPopup.addEventListener("click", (e) => {
-                if (e.target === helpPopup) {
-                    helpPopup.classList.add("hidden");
-                }
-            });
+            if (helpPopup) {
+                helpPopup.addEventListener("click", (e) => {
+                    if (e.target === helpPopup) {
+                        helpPopup.classList.add("hidden");
+                    }
+                });
+            }
         </script>
     </body>
 </html>
