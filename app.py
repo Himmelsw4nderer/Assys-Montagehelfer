@@ -13,6 +13,7 @@ app.register_blueprint(blueprint_blueprint)
 app.register_blueprint(pick_by_light_blueprint)
 
 @app.route('/', methods=['GET'])
+
 def index():
     return render_template('index.html')
 

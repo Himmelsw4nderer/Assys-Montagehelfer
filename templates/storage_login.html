@@ -1,38 +1,42 @@
-{% extends "base.html" %}
-{% block title %} Storage Login {% endblock %}
-{% block navbar_actions %}
+{% extends "base.html" %} {% block nav_extra %}
 <li class="nav-item">
     <form method="post" action="{{ url_for('blueprint.log_off') }}">
         <button type="submit" class="btn btn-danger hover-zoom">
-            <i class="fas fa-sign-out-alt me-2"></i> Log Out
+            <i class="fas fa-sign-out-alt me-2"></i> Hauptmenü
         </button>
     </form>
 </li>
-{% endblock %}
-{% block content %}
+
+{% endblock %} {% block content %}
 <div class="container-fluid py-5">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card shadow-lg">
                     <div class="card-header bg-primary text-white text-center">
-                        <h3><i class="fas fa-lock me-2"></i> Storage Management Login</h3>
+                        <h3>
+                            <i class="fas fa-lock me-2"></i> Anmeldung zur
+                            Teileverwaltung
+                        </h3>
                     </div>
                     <div class="card-body p-4">
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
+                        {% with messages =
+                        get_flashed_messages(with_categories=true) %} {% if
+                        messages %} {% for category, message in messages %}
+                        <div
+                            class="alert alert-danger alert-dismissible fade show"
+                            role="alert"
+                        >
+                            {{ message }}
+                        </div>
+                        {% endfor %} {% endif %} {% endwith %}
 
-<form method="post" class="needs-validation" novalidate>
+                        <form method="post" class="needs-validation" novalidate>
                             <div class="mb-4">
-                                <label for="password" class="form-label fw-bold">
+                                <label
+                                    for="password"
+                                    class="form-label fw-bold"
+                                >
                                     <i class="fas fa-key me-2"></i> Passwort:
                                 </label>
                                 <input
@@ -43,27 +47,23 @@
                                     placeholder="Passwort eingeben..."
                                     required
                                     autofocus
-                                >
+                                />
                                 <div class="invalid-feedback">
                                     Bitte geben Sie ein Passwort ein.
                                 </div>
                             </div>
 
-<div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary btn-lg fw-bold">
-                                    <i class="fas fa-sign-in-alt me-2"></i> Anmelden
+                            <div class="d-grid gap-2">
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary btn-lg fw-bold"
+                                >
+                                    <i class="fas fa-sign-in-alt me-2"></i>
+                                    Anmelden
                                 </button>
                             </div>
                         </form>
-
-<hr class="my-4">
-
-<div class="text-center">
-                            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i> Zurück zur Startseite
-                            </a>
-                        </div>
-</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -71,41 +71,32 @@
 </div>
 
 <script>
-// Bootstrap form validation
-(function() {
-    'use strict';
-    window.addEventListener('load', function() {
-        var forms = document.getElementsByClassName('needs-validation');
-        var validation = Array.prototype.filter.call(forms, function(form) {
-            form.addEventListener('submit', function(event) {
-                if (form.checkValidity() === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-    }, false);
-})();
+    // Bootstrap Formularvalidierung
+    (function () {
+        "use strict";
+        window.addEventListener(
+            "load",
+            function () {
+                var forms = document.getElementsByClassName("needs-validation");
+                var validation = Array.prototype.filter.call(
+                    forms,
+                    function (form) {
+                        form.addEventListener(
+                            "submit",
+                            function (event) {
+                                if (form.checkValidity() === false) {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                }
+                                form.classList.add("was-validated");
+                            },
+                            false,
+                        );
+                    },
+                );
+            },
+            false,
+        );
+    })();
 </script>
-
-<style>
-.card {
-    border-radius: 15px;
-}
-
-.card-header {
-    border-radius: 15px 15px 0 0 !important;
-}
-
-.form-control:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    transition: transform 0.2s ease;
-}
-</style>
-{% endblock %}
+Anmeldung {% endblock %}

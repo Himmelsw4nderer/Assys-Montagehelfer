@@ -1,4 +1,4 @@
-from rpi_ws281x import PixelStrip, Color
+from rpi_ws281x import PixelStrip
 from typing import Dict, Optional, Any, Tuple
 from pick_by_light.color_helper import get_color_by_name
 
@@ -76,9 +76,9 @@ class PickByLightController:
             del self.blocks[location]
 
             if self.currently_highlighted == location:
-                for i in range(self.num_pixels):
+                """for i in range(self.num_pixels):
                     self.pixels.setPixelColor(i, Color(0, 0, 0))
-                self.pixels.show()
+                self.pixels.show()"""
                 self.currently_highlighted = None
         else:
             new_count = current_count - count
@@ -86,9 +86,9 @@ class PickByLightController:
 
     def cleanup(self) -> None:
         """Clean up resources when done."""
-        for i in range(self.num_pixels):
+        """for i in range(self.num_pixels):
             self.pixels.setPixelColor(i, Color(0, 0, 0))
-        self.pixels.show()
+        self.pixels.show()"""
 
 
 if __name__ == "__main__":

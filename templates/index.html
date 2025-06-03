@@ -1,11 +1,17 @@
-{% extends "base.html" %} {% block title %} Home {% endblock %} {% block content
-%}
+{% extends "base.html" %} {% block content %}
+
+<div
+    class="animated-bg position-fixed w-100 h-100"
+    style="top: 0; left: 0; z-index: -1"
+></div>
 <div class="container-fluid py-5">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8 text-center">
                 <div class="content-container p-4 rounded border shadow-lg">
-                    <h1 class="display-3 mb-4 fw-bold">ASYS-MONTAGE</h1>
+                    <h1 class="display-3 mb-4 fw-bold">
+                        Klemmbaustein-Montagehelfer
+                    </h1>
                     <div class="p-4 rounded">
                         <div
                             class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-5"
@@ -17,49 +23,77 @@
                             >
                                 <button
                                     type="submit"
-                                    class="btn btn-primary btn-lg px-5 py-3 fw-bold hover-zoom"
-                                    style="width: 100%"
+                                    class="btn btn-primary btn-lg px-10 py-3 fw-bold hover-zoom"
+                                    style="width: 375px"
                                 >
-                                    <i class="fas fa-sign-in-alt me-2"></i> Getting Started
+                                    <i class="fas fa-sign-in-alt me-2"></i>
+                                    Montage starten
                                 </button>
                             </form>
                             <a
                                 href="{{ url_for('pick_by_light.storage_login') }}"
                                 class="btn btn-secondary btn-lg px-4 py-3 m-2 fw-bold hover-zoom"
                             >
-                                <i class="fas fa-lock me-2"></i> Brick
-                                Storage Management
+                                <i class="fas fa-lock me-2"></i> Teileverwaltung
                             </a>
                         </div>
 
                         <!-- Settings Card for auto gesture and voice ack -->
                         <div class="card mt-4">
                             <div class="card-header">
-                                <h5 class="mb-0"><i class="fas fa-cog me-2"></i> Einstellungen</h5>
+                                <h5 class="mb-0">
+                                    <i class="fas fa-cog me-2"></i>
+                                    Einstellungen
+                                </h5>
                             </div>
                             <div class="card-body">
-                                <form method="post" action="{{ url_for('blueprint.update_settings') }}">
+                                <form
+                                    method="post"
+                                    action="{{ url_for('blueprint.update_settings') }}"
+                                >
                                     <div class="row mb-3">
                                         <div class="col-md-6 mb-3">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="autoGestureAck" name="autoGestureAck" value="true">
-                                                <label class="form-check-label" for="autoGestureAck">
-                                                    Auto Gesture Acknowledge
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    id="autoGestureAck"
+                                                    name="autoGestureAck"
+                                                    value="true"
+                                                />
+                                                <label
+                                                    class="form-check-label"
+                                                    for="autoGestureAck"
+                                                >
+                                                    Steuerung per Gesten
                                                 </label>
                                             </div>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="autoVoiceAck" name="autoVoiceAck" value="true">
-                                                <label class="form-check-label" for="autoVoiceAck">
-                                                    Auto Voice Acknowledge
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    id="autoVoiceAck"
+                                                    name="autoVoiceAck"
+                                                    value="true"
+                                                />
+                                                <label
+                                                    class="form-check-label"
+                                                    for="autoVoiceAck"
+                                                >
+                                                    Steuerung per Sprache
                                                 </label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="text-center">
-                                        <button type="submit" class="btn btn-success">
-                                            <i class="fas fa-save me-2"></i> Einstellungen speichern
+                                        <button
+                                            type="submit"
+                                            class="btn btn-success"
+                                        >
+                                            <i class="fas fa-save me-2"></i>
+                                            Einstellungen speichern
                                         </button>
                                     </div>
                                 </form>
@@ -73,30 +107,32 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Fetch current settings asynchronously
-    async function fetchCurrentSettings() {
-        try {
-            const response = await fetch('/settings/current');
-            if (!response.ok) {
-                throw new Error('Failed to fetch settings');
+    document.addEventListener("DOMContentLoaded", function () {
+        // Fetch current settings asynchronously
+        async function fetchCurrentSettings() {
+            try {
+                const response = await fetch("/settings/current");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch settings");
+                }
+                const data = await response.json();
+
+                // Update checkboxes with the fetched settings
+                document.getElementById("autoGestureAck").checked =
+                    data.auto_gesture_ack;
+                document.getElementById("autoVoiceAck").checked =
+                    data.auto_voice_ack;
+            } catch (error) {
+                console.error("Error fetching settings:", error);
             }
-            const data = await response.json();
-
-            // Update checkboxes with the fetched settings
-            document.getElementById('autoGestureAck').checked = data.auto_gesture_ack;
-            document.getElementById('autoVoiceAck').checked = data.auto_voice_ack;
-        } catch (error) {
-            console.error('Error fetching settings:', error);
         }
-    }
 
-    // Call the function to fetch settings when the page loads
-    fetchCurrentSettings();
+        // Call the function to fetch settings when the page loads
+        fetchCurrentSettings();
 
-    // Optionally, periodically refresh settings
-    setInterval(fetchCurrentSettings, 30000); // Refresh every 30 seconds
-});
+        // Optionally, periodically refresh settings
+        setInterval(fetchCurrentSettings, 30000); // Refresh every 30 seconds
+    });
 </script>
 
 <style>
@@ -112,4 +148,38 @@ document.addEventListener('DOMContentLoaded', function() {
         border-radius: 15px;
     }
 </style>
-{% endblock %}
+
+{% endblock %} {% block nav_extra %}
+<li class="nav-item">
+    <span class="help-icon" id="help-trigger" title="Hilfe">?</span>
+</li>
+
+<!-- Popup -->
+<div id="help-popup" class="help-popup hidden">
+    <div class="help-content">
+        <span class="close-btn" id="close-help">&times;</span>
+        <h2>Hilfe - Hauptmenü</h2>
+        <p>
+            Sie befinden sich im Hauptmenü des Assistenzsystems zur Montage von
+            Klemmbausteinen. Das Assistenzsystem kann per Gesten gesteuert
+            werden (Bewegung der Hand zur Navigation zwischen den
+            Montageschritten, mit einer Handbewegung im Sichtfeld der Kamera von
+            rechts nach links kann zum nächsten Schritt navigiert werden, mit
+            einer Handbewegung von links nach rechts zum vorherigen Schritt.
+            Durch einen Ton wird der erfolgreiche Schrittwechsel bestätigt.<br />
+            Darüber hinaus kann die Navigation zwischen den Schritten auch per
+            Sprache erfolgen. Mit dem Wort „Weiter“ kann zum nächsten Schritt
+            und mit dem Wort „Zurück“ zum vorherigen Schritt navigiert werden.
+            In den Einstellungen kann die Steuerung per Gesten und Sprache
+            jeweils aktiviert oder deaktiviert werden. In der Mitte der oberen
+            Navigationsleiste wird dauerhaft angezeigt, ob die Steuerung per
+            Gesten oder Sprache aktiviert ist.<br />
+            Über den Knopf „Montage starten“ starten sie die Anleitungen zur
+            Montage. Über den Knopf „Teileverwaltung“ können in die Behälter
+            gefüllte Klemmbausteine in das Assistenzsystem eingepflegt werden
+            (nur für Berechtigte).
+        </p>
+    </div>
+</div>
+
+{% endblock %} {% block title %} Startseite {% endblock %}
