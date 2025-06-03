@@ -85,7 +85,7 @@ def draw_finger_debug_info(image, landmarks):
         color = (0, 255, 0) if is_extended else (0, 0, 255)
         status = 'Y' if is_extended else 'N'
         cv2.putText(image, f"{finger_name}: {status}",
-                   (10, 150 + i * 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+                   (10, 200 + i * 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
 
 
 def draw_debug_information(image, hand_landmarks, show_debug):
@@ -419,11 +419,38 @@ def draw_hand_status(image, is_open: bool, hand_center=None, hand_size=None, sho
     if is_open:
         cv2.putText(image, "OPEN HAND", (10, 70), font, 0.8, (0, 255, 0), 2, cv2.LINE_AA)
         if show_debug and hand_center and hand_size:
-            cv2.putText(image, f"Size: {hand_size:.3f}", (10, 100), font, 0.6, (255, 255, 0), 2, cv2.LINE_AA)
+            cv2.putText(image, f"Size: {hand_size:.3f}", (10, 140), font, 0.6, (255, 255, 0), 2, cv2.LINE_AA)
             cv2.putText(image, f"Center: ({hand_center[0]:.2f}, {hand_center[1]:.2f})",
-                       (10, 120), font, 0.6, (255, 255, 0), 2, cv2.LINE_AA)
+                       (10, 160), font, 0.6, (255, 255, 0), 2, cv2.LINE_AA)
     else:
         cv2.putText(image, "CLOSED HAND", (10, 70), font, 0.8, (0, 0, 255), 2, cv2.LINE_AA)
+
+
+def draw_threshold_info(image, config: GestureConfig, current_distance=None, frame_width=None) -> None:
+    """Draw threshold and scaling information on the camera feed."""
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 0.4
+    color = (200, 200, 200)  # Light gray
+    thickness = 1
+
+    # Position in top-right corner
+    start_x = frame_width - 200 if frame_width else 450
+    start_y = 15
+    line_height = 16
+
+    # Draw configuration values
+    cv2.putText(image, f"Swipe Threshold: {config.swipe_threshold:.1f}",
+                (start_x, start_y), font, font_scale, color, thickness)
+    cv2.putText(image, f"Angle Threshold: {config.angle_threshold:.0f}°",
+                (start_x, start_y + line_height), font, font_scale, color, thickness)
+    cv2.putText(image, f"Min Fingers: {config.min_fingers}",
+                (start_x, start_y + 2 * line_height), font, font_scale, color, thickness)
+
+    # Show current scaled distance if available
+    if current_distance is not None:
+        distance_color = (0, 255, 0) if current_distance >= config.swipe_threshold else (0, 165, 255)
+        cv2.putText(image, f"Current Dist: {current_distance:.2f}",
+                    (start_x, start_y + 3 * line_height), font, font_scale, distance_color, thickness)
 
 
 def handle_open_hand(image, hand_landmarks, state: GestureState, config: GestureConfig,
@@ -441,7 +468,16 @@ def handle_open_hand(image, hand_landmarks, state: GestureState, config: Gesture
         draw_tracking_line(image, state.open_hand_start_pos, hand_center,
                           frame_width, frame_height, (0, 255, 255))
 
+    # Calculate current scaled distance for display
+    current_distance = None
+    if state.open_hand_start_pos and state.open_hand_start_size:
+        dx = hand_center[0] - state.open_hand_start_pos[0]
+        dy = hand_center[1] - state.open_hand_start_pos[1]
+        raw_distance = math.sqrt(dx**2 + dy**2)
+        current_distance = raw_distance / state.open_hand_start_size if state.open_hand_start_size > 0 else 0
+
     draw_hand_status(image, True, hand_center, hand_size, config.show_debug)
+    draw_threshold_info(image, config, current_distance, frame_width)
 
 
 def handle_gesture_detection(image, hand_landmarks, state: GestureState, config: GestureConfig,
@@ -477,18 +513,22 @@ def handle_closed_hand(image, hand_landmarks, state: GestureState, config: Gestu
                       frame_width: int, frame_height: int) -> None:
     """Handle closed hand detection and gesture processing."""
     draw_hand_status(image, False)
+    draw_threshold_info(image, config, None, frame_width)
     handle_gesture_detection(image, hand_landmarks, state, config, frame_width, frame_height)
 
     state.open_hand_start_pos = None
     state.open_hand_start_size = None
 
 
-def handle_no_hand_detected(state: GestureState) -> None:
+def handle_no_hand_detected(state: GestureState, image, config: GestureConfig, frame_width: int) -> None:
     """Handle case when no hand is detected."""
     if state.open_hand_start_pos and state.gesture_cooldown <= 0:
         print("Hand lost - checking for swipe gesture")
         state.open_hand_start_pos = None
         state.open_hand_start_size = None
+
+    # Still show threshold info even when no hand is detected
+    draw_threshold_info(image, config, None, frame_width)
 
 
 def draw_cooldown_timer(image, gesture_cooldown: int, frame_height: int) -> None:
@@ -534,7 +574,7 @@ def run_main_loop(cap, mp_components: MediaPipeComponents, config: GestureConfig
         if results and results.multi_hand_landmarks:
             process_frame_with_hands(image, results, mp_components, state, config, frame_width, frame_height)
         else:
-            handle_no_hand_detected(state)
+            handle_no_hand_detected(state, image, config, frame_width)
 
         state.gesture_cooldown = max(0, state.gesture_cooldown - 1)
         draw_cooldown_timer(image, state.gesture_cooldown, frame_height)
