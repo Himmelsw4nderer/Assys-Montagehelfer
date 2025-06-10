@@ -26,7 +26,7 @@ class PickByLightController:
         """Add a block to a specific location with its properties."""
         if location in self.blocks:
             raise ValueError(f"Block already exists at location {location}.")
-        if location > self.num_pixels or location < 0:
+        if location + 2 >= self.num_pixels or location < 0:
             raise ValueError(f"Location {location} is out of range.")
 
         # Make sure length is always longer than width
@@ -55,7 +55,10 @@ class PickByLightController:
         color = get_color_by_name(color_name)
 
         self.cleanup()
+        # Turn on 3 consecutive LEDs
         self.pixels.setPixelColor(location, color)
+        self.pixels.setPixelColor(location + 1, color)
+        self.pixels.setPixelColor(location + 2, color)
         self.pixels.show()
         self.currently_highlighted = location
 
@@ -76,9 +79,6 @@ class PickByLightController:
             del self.blocks[location]
 
             if self.currently_highlighted == location:
-                """for i in range(self.num_pixels):
-                    self.pixels.setPixelColor(i, Color(0, 0, 0))
-                self.pixels.show()"""
                 self.currently_highlighted = None
         else:
             new_count = current_count - count
@@ -86,30 +86,30 @@ class PickByLightController:
 
     def cleanup(self) -> None:
         """Clean up resources when done."""
-        """for i in range(self.num_pixels):
-            self.pixels.setPixelColor(i, Color(0, 0, 0))
-        self.pixels.show()"""
+        for i in range(self.num_pixels):
+            self.pixels.setPixelColor(i, 0)
+        self.pixels.show()
 
 
 if __name__ == "__main__":
     light_controller = PickByLightController(led_pin=12, num_pixels=30)
 
-    light_controller.add_block_to_location(10, length=2.0, width=4.0, color="red", count=2)
-    light_controller.add_block_to_location(15, length=2.0, width=4.0, color="blue", count=1)
-    light_controller.add_block_to_location(20, length=2.0, width=4.0, color="green", count=3)
+    light_controller.add_block_to_location(0, length=2.0, width=4.0, color="red", count=2)
+    light_controller.add_block_to_location(3, length=2.0, width=4.0, color="blue", count=1)
+    light_controller.add_block_to_location(6, length=2.0, width=4.0, color="green", count=3)
 
     print("\nTesting block highlighting:")
-    light_controller.show_block(10)
+    light_controller.show_block(0)
     input("Press Enter to continue to next block...")
 
     try:
-        light_controller.show_block(15)
+        light_controller.show_block(3)
     except ValueError as e:
         print(e)
     input("Press Enter to continue to next block...")
 
     try:
-        light_controller.show_block(20)
+        light_controller.show_block(6)
     except ValueError as e:
         print(e)
     input("Press Enter to continue...")
