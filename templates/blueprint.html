@@ -3,11 +3,15 @@
     <span class="help-icon" id="help-trigger" title="Hilfe">?</span>
 </li>
 <li class="nav-item">
-    <form method="post" action="{{ url_for('blueprint.log_off') }}">
-        <button type="submit" class="btn btn-danger hover-zoom">
-            <i class="fas fa-sign-out-alt me-2"></i> Hauptmenü
-        </button>
-    </form>
+    <button id="mainMenuBtn" class="btn btn-danger hover-zoom">
+        <i class="fas fa-sign-out-alt me-2"></i> Hauptmenü
+    </button>
+    <form
+        id="logoffForm"
+        method="post"
+        action="{{ url_for('blueprint.log_off') }}"
+        style="display: none"
+    ></form>
 </li>
 
 <!-- Popup -->
@@ -25,6 +29,18 @@
             Montageschritten navigieren. Die Navigation kann zudem anhand von
             Gesten oder Sprache erfolgen (siehe Hilfe im Hauptmenü).
         </p>
+    </div>
+</div>
+
+<!-- Confirmation Popup -->
+<div id="confirm-popup" class="help-popup hidden">
+    <div class="help-content">
+        <h2>Bestätigung</h2>
+        <p>Möchten Sie wirklich zum Hauptmenü zurückkehren?</p>
+        <div class="text-center">
+            <button id="confirmYes" class="btn btn-danger">Ja</button>
+            <button id="confirmNo" class="btn btn-secondary">Nein</button>
+        </div>
     </div>
 </div>
 
@@ -98,6 +114,21 @@
 <script>
     // Keep track of last acknowledged state to prevent duplicate submissions
     let lastAcknowledged = false;
+
+    // Handle main menu button click
+    document.getElementById('mainMenuBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('confirm-popup').classList.remove('hidden');
+    });
+
+    // Handle confirmation buttons
+    document.getElementById('confirmYes').addEventListener('click', function() {
+        document.getElementById('logoffForm').submit();
+    });
+
+    document.getElementById('confirmNo').addEventListener('click', function() {
+        document.getElementById('confirm-popup').classList.add('hidden');
+    });
 
     // Poll the auto_acknowledge endpoint every half second
     function checkAutoAcknowledge() {

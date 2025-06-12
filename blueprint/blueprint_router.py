@@ -61,7 +61,7 @@ def register_blueprint_routes(blueprint: Blueprint, pick_by_light_controller: Pi
         location = pick_by_light_controller.get_block_location(length=steps[step-1][2], width=steps[step-1][3], color=steps[step-1][4])
 
         if location is None:
-            warning = "No block found in the storage"
+            warning = "Kein Klemmbaustein im Zwischenlager gefunden"
             return render_template('blueprint.html',
                                   image=image,
                                   step=step,
