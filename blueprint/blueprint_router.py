@@ -2,21 +2,45 @@ from flask import Blueprint, render_template, redirect, url_for, request, jsonif
 from blueprint.render import render_blueprint, render_control_views
 from blueprint.loader import select_random_blueprint, load_blueprint
 from pick_by_light.pick_by_light_controller import PickByLightController
+from collections import Counter
 
 # Global state to ensure accessibility across all route functions
 state = {
     "auto_acknowledged": False,
     "auto_gesture_ack": True,  # Enable by default for better usability
     "auto_voice_ack": True,    # Enable by default for better usability
-    "auto_direction": "next"
+    "auto_direction": "next",
+    "block_locations_by_step" : set()  # Set of (step: int, location: str)
 }
+
+
+
+def store_block_location(step: int, location: str):
+    state["block_locations_by_step"].add((step, location))
+
+def remove_stored_blocks(pick_by_light_controller: PickByLightController):
+    print(state["block_locations_by_step"])
+    location_counts = Counter(location for _, location in state["block_locations_by_step"])
+
+    # Entferne pro Location so viele Einheiten, wie gezählt
+    for location, count in location_counts.items():
+        for _ in range(count):
+            pick_by_light_controller.remove_block(location)
+
+    # Danach leeren
+    state["block_locations_by_step"].clear()
+
+
+
+
+
 
 def create_blueprint(pick_by_light_controller: PickByLightController) -> Blueprint:
     blueprint = Blueprint('blueprint', __name__)
 
     register_auth_routes(blueprint)
     register_blueprint_routes(blueprint, pick_by_light_controller)
-    register_control_routes(blueprint)
+    register_control_routes(blueprint, pick_by_light_controller)
     register_auto_acknowledge_routes(blueprint)
 
     return blueprint
@@ -28,6 +52,7 @@ def register_auth_routes(blueprint: Blueprint) -> None:
 
     @blueprint.route('/log_off', methods=['POST'])
     def log_off():
+        state["block_locations_by_step"].clear()
         return redirect(url_for('index'))
 
 def register_blueprint_routes(blueprint: Blueprint, pick_by_light_controller: PickByLightController) -> None:
@@ -70,7 +95,8 @@ def register_blueprint_routes(blueprint: Blueprint, pick_by_light_controller: Pi
                                   warning=warning)
         else:
             pick_by_light_controller.show_block(location)
-            pick_by_light_controller.remove_block(location)
+            #pick_by_light_controller.remove_block(location)
+            store_block_location(step, location)
 
         return render_template('blueprint.html',
                               image=image,
@@ -78,7 +104,7 @@ def register_blueprint_routes(blueprint: Blueprint, pick_by_light_controller: Pi
                               max_steps=max_steps,
                               blueprint=blueprint_name)
 
-def register_control_routes(blueprint: Blueprint) -> None:
+def register_control_routes(blueprint: Blueprint, pick_by_light_controller: PickByLightController) -> None:
     @blueprint.route('/control', methods=['POST'])
     def control_post():
         if 'step' not in request.form or 'blueprint' not in request.form:
@@ -91,7 +117,11 @@ def register_control_routes(blueprint: Blueprint) -> None:
             return redirect(url_for('blueprint.blueprint_get', step=last_step, blueprint=blueprint_name))
         elif request.form.get('direction') == 'to_first_step':
             return redirect(url_for('blueprint.blueprint_get', step=1, blueprint=blueprint_name))
-        return redirect(url_for('blueprint.blueprint_get', step=1, blueprint=select_random_blueprint()))
+        else:
+            steps = load_blueprint(blueprint_name)
+            #remove_used_blocks(steps, pick_by_light_controller=pick_by_light_controller)
+            remove_stored_blocks(pick_by_light_controller)
+            return redirect(url_for('blueprint.blueprint_get', step=1, blueprint=select_random_blueprint()))
 
     @blueprint.route('/control', methods=['GET'])
     def control_get():
@@ -109,6 +139,13 @@ def register_control_routes(blueprint: Blueprint) -> None:
                               step=len(steps)+1,
                               max_steps=len(steps),
                               blueprint=blueprint_name)
+
+
+    @blueprint.route('/control/exit', methods=['POST', 'GET'])
+    def control_exit():
+        remove_stored_blocks(pick_by_light_controller)
+        return redirect(url_for('index'))
+
 
 def register_auto_acknowledge_routes(blueprint: Blueprint):
     @blueprint.route("/auto_acknowledge", methods=["GET"])

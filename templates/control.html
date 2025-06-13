@@ -4,7 +4,7 @@ nav_extra %}
     <span class="help-icon" id="help-trigger" title="Hilfe">?</span>
 </li>
 <li class="nav-item">
-    <form method="post" action="{{ url_for('blueprint.log_off') }}">
+    <form method="post" action="{{ url_for('blueprint.control_exit') }}">
         <button type="submit" class="btn btn-danger hover-zoom">
             <i class="fas fa-sign-out-alt me-2"></i> Hauptmenü
         </button>
@@ -123,7 +123,7 @@ nav_extra %}
                     <h1>Nächste Anleitung</h1>
                 </button>
                 <a
-                    href="{{ url_for('index') }}"
+                    href="{{ url_for('blueprint.control_exit') }}"
                     class="btn btn-danger py-3 px-4 fs-1 nexttoimage d-flex align-items-center justify-content-center"
                     style="width: 100%"
                 >
